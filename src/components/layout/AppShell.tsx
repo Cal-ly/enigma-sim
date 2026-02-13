@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TabNav } from './TabNav';
 import { SimulatorView } from '../simulator/SimulatorView';
+import { TutorialView } from '../tutorial/TutorialView';
 import type { Tab } from './TabNav';
 
 export function AppShell() {
@@ -16,12 +17,7 @@ export function AppShell() {
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="app-content">
         {activeTab === 'simulator' && <SimulatorView />}
-        {activeTab === 'tutorial' && (
-          <div className="placeholder">
-            <h2>How It Works</h2>
-            <p>Interactive signal path visualization — coming in Phase 3.</p>
-          </div>
-        )}
+        {activeTab === 'tutorial' && <TutorialView />}
         {activeTab === 'history' && (
           <div className="placeholder">
             <h2>History</h2>

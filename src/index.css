@@ -479,3 +479,246 @@ body {
   font-size: 0.8rem;
   margin-top: 0.5rem;
 }
+
+/* === Tutorial === */
+.tutorial {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tutorial-intro h2 {
+  margin: 0 0 0.75rem;
+  color: var(--color-accent);
+}
+
+.tutorial-intro p {
+  line-height: 1.6;
+  color: var(--color-text);
+  margin: 0 0 0.5rem;
+}
+
+.tutorial-config {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.tutorial-config h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.tutorial-letter-select {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tutorial-letter-select label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.tutorial-letter-select select {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.5rem;
+  font-size: 1rem;
+  font-family: var(--font-mono);
+}
+
+.tutorial-result-preview {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--color-lamp-on);
+  padding: 0.3rem 0.75rem;
+  background: var(--color-bg);
+  border-radius: var(--radius);
+}
+
+/* === Signal Path === */
+.signal-path {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.signal-path-blocks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.signal-block-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.signal-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 64px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  transition: all 0.2s;
+  position: relative;
+}
+
+.signal-block.visited {
+  border-color: var(--color-surface-alt);
+}
+
+.signal-block.active {
+  border-color: var(--color-accent);
+  background: rgba(233, 69, 96, 0.1);
+  box-shadow: 0 0 8px rgba(233, 69, 96, 0.3);
+}
+
+.signal-block-short {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+.signal-block.active .signal-block-short {
+  color: var(--color-accent);
+}
+
+.signal-block-label {
+  font-size: 0.55rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.signal-block-letter {
+  position: absolute;
+  bottom: -8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--color-lamp-on);
+  background: var(--color-surface);
+  padding: 0 0.2rem;
+  border-radius: 2px;
+}
+
+.signal-connector {
+  color: var(--color-border);
+  font-size: 0.7rem;
+  min-width: 12px;
+  text-align: center;
+}
+
+.signal-connector.visited {
+  color: var(--color-accent);
+}
+
+.signal-step-info {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.signal-step-label {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--color-lamp-on);
+  margin-bottom: 0.5rem;
+}
+
+.signal-step-description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+/* === Step Controls === */
+.step-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.step-controls button {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.step-controls button:hover:not(:disabled) {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.step-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.step-counter {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  min-width: 100px;
+  text-align: center;
+}
+
+/* === Tutorial Properties === */
+.tutorial-properties h3 {
+  margin: 0 0 0.75rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tutorial-property-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tutorial-property-card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.tutorial-property-card h4 {
+  margin: 0 0 0.5rem;
+  color: var(--color-accent);
+  font-size: 0.95rem;
+}
+
+.tutorial-property-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
