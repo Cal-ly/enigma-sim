@@ -72,22 +72,46 @@
 
 ## Phase 3: Tutorial / How It Works
 
-_No entries yet._
+### 2026-02-13 — Engine trace makes tutorial trivial to implement
+
+**[LL]**
+
+**Context:** Building the step-by-step signal path visualization for the tutorial.
+**What happened:** The `SignalStep[]` trace returned by `encryptLetter()` mapped directly to tutorial steps with zero additional computation. One `useMemo` call to build `TutorialStep[]` from the engine result was sufficient.
+**Takeaway:** Designing the engine to return intermediate results from day one (Phase 1 decision) eliminated the need for any tutorial-specific simulation logic. This is a clear win for the trace-based API approach.
 
 ---
 
 ## Phase 4: History Content
 
-_No entries yet._
+### 2026-02-13 — TypeScript structured data simpler than Markdown for v1
+
+**[LL]**
+
+**Context:** Spec offered a choice between `history.ts` data structure or `.md` files loaded at build time.
+**What happened:** Using a typed `HistoryChapter[]` array with `HistorySection[]` was straightforward — no build-time markdown processing, no frontmatter parsing, full type safety for rendering.
+**Takeaway:** For content-heavy sections with simple structure (title + paragraphs), TypeScript data files are the right v1 choice. Markdown would only be worth it if we needed rich formatting (code blocks, images, tables).
 
 ---
 
 ## Phase 5: Polish & Deploy
 
-_No entries yet._
+### 2026-02-13 — GitHub Pages via actions/deploy-pages is clean
+
+**[LL]**
+
+**Context:** Setting up GitHub Actions for deployment.
+**What happened:** The `actions/upload-pages-artifact` + `actions/deploy-pages` pattern is straightforward. Key config: `permissions: pages: write, id-token: write`, and the `dist/` output directory from Vite's build.
+**Takeaway:** For Vite static sites, the GitHub Actions Pages deployment is essentially a 3-step job: checkout → build → deploy. No special configuration needed beyond the base path in `vite.config.ts`.
 
 ---
 
 ## Cross-Cutting / General
 
-_No entries yet._
+### 2026-02-13 — Five-phase incremental approach worked well
+
+**[LL]**
+
+**Context:** Completing all 5 phases of the project.
+**What happened:** The phased approach (engine → UI → tutorial → history → polish) kept each phase focused and testable. Engine tests remained green throughout all UI work. The clean separation between engine (pure TS) and UI (React) meant zero regressions.
+**Takeaway:** For simulator projects, build the engine first with comprehensive tests, then layer the UI on top. The engine becomes a reliable foundation that doesn't change._
