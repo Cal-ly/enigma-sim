@@ -15,6 +15,8 @@ const COMPONENT_DESCRIPTIONS: Record<string, string> = {
     'The signal reaches the leftmost (slowest) rotor. This rotor only turns when the middle rotor hits its notch — or during a double-step. With three rotors, the cipher doesn\'t repeat for 26×25×26 = 16,900 key presses.',
   'reflector':
     'The reflector (Umkehrwalze) bounces the signal back through the rotors. It maps each letter to a different letter, guaranteeing no letter can encrypt to itself. This was a crucial weakness exploited by codebreakers.',
+  'reflector-forward':
+    'The reflector (Umkehrwalze) bounces the signal back through the rotors. It maps each letter to a different letter, guaranteeing no letter can encrypt to itself. This was a crucial weakness exploited by codebreakers.',
   'rotor-l-reverse':
     'The signal returns through the left rotor in reverse. Because rotor wiring is a fixed permutation, the reverse path produces a different substitution than the forward path.',
   'rotor-m-reverse':

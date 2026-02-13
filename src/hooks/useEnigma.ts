@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { EnigmaMachine, ALPHABET } from '../engine';
 import type { MachineConfig, EncryptionResult, Letter, RotorName, ReflectorName } from '../types';
 
@@ -31,6 +31,12 @@ function freshState(cfg: MachineConfig): EnigmaState {
 export function useEnigma() {
   const [config, setConfig] = useState<MachineConfig>(DEFAULT_CONFIG);
   const machineRef = useRef<EnigmaMachine>(new EnigmaMachine(DEFAULT_CONFIG));
+  const configRef = useRef<MachineConfig>(DEFAULT_CONFIG);
+
+  // Keep configRef in sync so callbacks always see the latest config
+  useEffect(() => {
+    configRef.current = config;
+  });
 
   const [state, setState] = useState<EnigmaState>(freshState(DEFAULT_CONFIG));
 
@@ -89,39 +95,34 @@ export function useEnigma() {
     field: 'name' | 'ringSetting' | 'position',
     value: RotorName | number | string,
   ) => {
-    setConfig((prev) => {
-      const newRotors = [...prev.rotors] as MachineConfig['rotors'];
-      newRotors[slot] = { ...newRotors[slot], [field]: value };
-      return { ...prev, rotors: newRotors };
-    });
-    // Derive the new config after React processes the setConfig updater,
-    // then reconcile machine + state outside the updater (no side effects).
-    // We need the config synchronously, so compute it inline:
-    const newRotors = [...config.rotors] as MachineConfig['rotors'];
+    const cur = configRef.current;
+    const newRotors = [...cur.rotors] as MachineConfig['rotors'];
     newRotors[slot] = { ...newRotors[slot], [field]: value };
-    const newConfig: MachineConfig = { ...config, rotors: newRotors };
+    const newConfig: MachineConfig = { ...cur, rotors: newRotors };
     applyConfig(newConfig);
-  }, [config, applyConfig]);
+  }, [applyConfig]);
 
   const updateReflector = useCallback((reflector: ReflectorName) => {
-    const newConfig: MachineConfig = { ...config, reflector };
+    const newConfig: MachineConfig = { ...configRef.current, reflector };
     applyConfig(newConfig);
-  }, [config, applyConfig]);
+  }, [applyConfig]);
 
   const addPlugboardPair = useCallback((a: Letter, b: Letter) => {
-    const newPairs = [...config.plugboardPairs, [a, b] as [Letter, Letter]];
-    const newConfig: MachineConfig = { ...config, plugboardPairs: newPairs };
+    const cur = configRef.current;
+    const newPairs = [...cur.plugboardPairs, [a, b] as [Letter, Letter]];
+    const newConfig: MachineConfig = { ...cur, plugboardPairs: newPairs };
     if (!applyConfig(newConfig)) {
       // Invalid pair — revert (applyConfig already kept the old machine)
-      setConfig(config);
+      setConfig(cur);
     }
-  }, [config, applyConfig]);
+  }, [applyConfig]);
 
   const removePlugboardPair = useCallback((index: number) => {
-    const newPairs = config.plugboardPairs.filter((_, i) => i !== index);
-    const newConfig: MachineConfig = { ...config, plugboardPairs: newPairs };
+    const cur = configRef.current;
+    const newPairs = cur.plugboardPairs.filter((_, i) => i !== index);
+    const newConfig: MachineConfig = { ...cur, plugboardPairs: newPairs };
     applyConfig(newConfig);
-  }, [config, applyConfig]);
+  }, [applyConfig]);
 
   /** Generate a random valid configuration: 3 distinct rotors, random positions/rings, random plugboard pairs */
   const randomize = useCallback(() => {

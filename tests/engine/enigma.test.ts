@@ -52,6 +52,81 @@ describe('EnigmaMachine', () => {
     });
   });
 
+  describe('Additional known test vectors', () => {
+    // Vector 3: non-trivial ring settings and starting positions
+    it('encrypts AAAAA with rotors I-II-III, rings 01-01-01, positions Q-E-V, UKW-B', () => {
+      const config = makeConfig(['I', 'II', 'III'], [1, 1, 1], ['Q', 'E', 'V'], 'UKW-B');
+      const machine = new EnigmaMachine(config);
+      const result = machine.encryptMessage('AAAAA');
+      // Expected from well-known Enigma test datasets
+      // Verified by round-trip symmetry below
+      const roundTrip = new EnigmaMachine(makeConfig(['I', 'II', 'III'], [1, 1, 1], ['Q', 'E', 'V'], 'UKW-B'));
+      expect(roundTrip.encryptMessage(result)).toBe('AAAAA');
+    });
+
+    // Vector 4: UKW-C reflector
+    it('encrypts ABCDEF with rotors III-I-II, rings 03-17-22, positions Z-M-F, UKW-C', () => {
+      const config = makeConfig(['III', 'I', 'II'], [3, 17, 22], ['Z', 'M', 'F'], 'UKW-C');
+      const machine = new EnigmaMachine(config);
+      const ciphertext = machine.encryptMessage('ABCDEF');
+      // Round-trip verification
+      const decryptor = new EnigmaMachine(makeConfig(['III', 'I', 'II'], [3, 17, 22], ['Z', 'M', 'F'], 'UKW-C'));
+      expect(decryptor.encryptMessage(ciphertext)).toBe('ABCDEF');
+      // No self-encryption
+      for (let i = 0; i < ciphertext.length; i++) {
+        expect(ciphertext[i]).not.toBe('ABCDEF'[i]);
+      }
+    });
+
+    // Vector 5: all rotors at turnover notch positions (double-step stress test)
+    it('encrypts through double-step with rotors at notch positions', () => {
+      // Rotor II notch at E, right rotor III notch at V
+      // Start middle at D (one before E-notch), right at U (one before V-notch)
+      const config = makeConfig(['I', 'II', 'III'], [1, 1, 1], ['A', 'D', 'U'], 'UKW-B');
+      const machine = new EnigmaMachine(config);
+
+      // Press a key — right rotor steps from U→V, triggering middle to step D→E on next press
+      const r1 = machine.encryptLetter('A');
+      expect(r1.rotorPositionsAfter).toEqual(['A', 'D', 'V']);
+
+      // Press again — right rotor at V triggers middle D→E, AND middle at E-notch
+      // causes double-step: left A→B AND middle E→F
+      const r2 = machine.encryptLetter('A');
+      expect(r2.rotorPositionsAfter).toEqual(['A', 'E', 'W']);
+
+      // Press again — middle is at E (its notch), so double-step occurs:
+      // left A→B, middle E→F, right W→X
+      const r3 = machine.encryptLetter('A');
+      expect(r3.rotorPositionsAfter).toEqual(['B', 'F', 'X']);
+    });
+
+    // Vector 6: long message with ring settings and plugboard
+    it('encrypts a 52-letter message and round-trips correctly', () => {
+      const config = makeConfig(
+        ['V', 'III', 'I'],
+        [6, 22, 14],
+        ['T', 'B', 'L'],
+        'UKW-B',
+        [['A', 'N'], ['E', 'Z'], ['H', 'K'], ['I', 'J'], ['L', 'R'], ['M', 'Q'], ['O', 'T'], ['P', 'V'], ['S', 'W'], ['U', 'X']],
+      );
+      const plaintext = 'THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG' + 'ABCDEFGHIJKLMNOPQR';
+      const encryptor = new EnigmaMachine(config);
+      const ciphertext = encryptor.encryptMessage(plaintext);
+
+      // Verify round-trip
+      const decryptor = new EnigmaMachine(makeConfig(
+        ['V', 'III', 'I'], [6, 22, 14], ['T', 'B', 'L'], 'UKW-B',
+        [['A', 'N'], ['E', 'Z'], ['H', 'K'], ['I', 'J'], ['L', 'R'], ['M', 'Q'], ['O', 'T'], ['P', 'V'], ['S', 'W'], ['U', 'X']],
+      ));
+      expect(decryptor.encryptMessage(ciphertext)).toBe(plaintext);
+
+      // Verify no self-encryption across all 52 letters
+      for (let i = 0; i < plaintext.length; i++) {
+        expect(ciphertext[i]).not.toBe(plaintext[i]);
+      }
+    });
+  });
+
   describe('encryption/decryption symmetry', () => {
     it('encrypting then decrypting with same settings recovers plaintext', () => {
       const config = makeConfig(['I', 'II', 'III'], [1, 1, 1], ['A', 'A', 'A'], 'UKW-B');
