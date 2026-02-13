@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
-import { EnigmaMachine } from '../engine';
+import { EnigmaMachine, ALPHABET } from '../engine';
 import type { MachineConfig, EncryptionResult, Letter, RotorName, ReflectorName } from '../types';
 
 type EnigmaState = {
@@ -123,6 +123,40 @@ export function useEnigma() {
     applyConfig(newConfig);
   }, [config, applyConfig]);
 
+  /** Generate a random valid configuration: 3 distinct rotors, random positions/rings, random plugboard pairs */
+  const randomize = useCallback(() => {
+    const allRotors: RotorName[] = ['I', 'II', 'III', 'IV', 'V'];
+    const reflectors: ReflectorName[] = ['UKW-B', 'UKW-C'];
+
+    // Shuffle and pick 3 distinct rotors
+    const shuffled = allRotors.sort(() => Math.random() - 0.5);
+    const randomLetter = () => ALPHABET[Math.floor(Math.random() * 26)];
+    const randomRing = () => Math.floor(Math.random() * 26) + 1;
+
+    // Generate 3-10 random plugboard pairs from available letters
+    const available = ALPHABET.split('');
+    const pairCount = Math.floor(Math.random() * 8) + 3; // 3–10 pairs
+    const pairs: [Letter, Letter][] = [];
+    for (let i = 0; i < pairCount && available.length >= 2; i++) {
+      const ai = Math.floor(Math.random() * available.length);
+      const a = available.splice(ai, 1)[0];
+      const bi = Math.floor(Math.random() * available.length);
+      const b = available.splice(bi, 1)[0];
+      pairs.push([a, b]);
+    }
+
+    const newConfig: MachineConfig = {
+      rotors: [
+        { name: shuffled[0], ringSetting: randomRing(), position: randomLetter() },
+        { name: shuffled[1], ringSetting: randomRing(), position: randomLetter() },
+        { name: shuffled[2], ringSetting: randomRing(), position: randomLetter() },
+      ],
+      reflector: reflectors[Math.floor(Math.random() * reflectors.length)],
+      plugboardPairs: pairs,
+    };
+    applyConfig(newConfig);
+  }, [applyConfig]);
+
   // Check if current rotor selection has duplicates
   const hasRotorConflict = new Set(config.rotors.map((r) => r.name)).size !== 3;
 
@@ -139,6 +173,7 @@ export function useEnigma() {
     updateReflector,
     addPlugboardPair,
     removePlugboardPair,
+    randomize,
   }), [config, state, hasRotorConflict, pressKey, resetPositions, configure,
-       updateRotor, updateReflector, addPlugboardPair, removePlugboardPair]);
+       updateRotor, updateReflector, addPlugboardPair, removePlugboardPair, randomize]);
 }

@@ -21,6 +21,16 @@ export function Keyboard({ onKeyPress, disabled }: KeyboardProps) {
       // Ignore if modifier keys are held (allow browser shortcuts)
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
+      // Don't capture keys when a form element is focused (e.g. config selects,
+      // plugboard inputs, text fields) — only encrypt when focus is on body,
+      // the keyboard itself, or a non-interactive element.
+      const active = document.activeElement;
+      if (active && (active instanceof HTMLInputElement ||
+                     active instanceof HTMLSelectElement ||
+                     active instanceof HTMLTextAreaElement)) {
+        return;
+      }
+
       const key = e.key.toUpperCase();
       if (/^[A-Z]$/.test(key)) {
         e.preventDefault();

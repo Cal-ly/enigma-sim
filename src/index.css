@@ -57,6 +57,64 @@ body {
 }
 
 /* === App Shell === */
+
+/* Skip-to-content link — hidden until focused (WCAG 2.4.1) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* Error boundary fallback */
+.error-boundary {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.error-boundary h2 {
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
+
+.error-boundary details {
+  margin: 1rem 0;
+  text-align: left;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+.error-boundary pre {
+  background: var(--color-surface);
+  padding: 1rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.error-boundary button {
+  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;
@@ -468,6 +526,84 @@ body {
   letter-spacing: 0.15em;
   word-break: break-all;
   min-height: 1.4em;
+}
+
+/* Copy-to-clipboard button */
+.copy-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.15rem 0.5rem;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.copy-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* === Batch Encrypt === */
+.batch-input {
+  padding: 0.5rem 0;
+}
+
+.batch-input h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.batch-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.batch-row input {
+  flex: 1;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.batch-row input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.batch-row input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.batch-row button {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.batch-row button:hover:not(:disabled) {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.batch-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* === Controls === */
