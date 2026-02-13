@@ -30,7 +30,7 @@ export function PlugboardConfig({ pairs, onAddPair, onRemovePair }: PlugboardCon
   const availableForB = availableLetters.filter((ch) => ch !== letterA);
 
   return (
-    <section className="bg-surface rounded-default p-4 border border-border">
+    <section className="bg-surface rounded-default p-3 sm:p-4 border border-border">
       <h3 className="m-0 mb-3 text-[0.85rem] uppercase tracking-widest text-muted">
         Plugboard ({pairs.length}/13 pairs)
       </h3>
@@ -60,7 +60,7 @@ export function PlugboardConfig({ pairs, onAddPair, onRemovePair }: PlugboardCon
       </div>
 
       {canAddMore && (
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
           <select
             value={letterA}
             onChange={(e) => {

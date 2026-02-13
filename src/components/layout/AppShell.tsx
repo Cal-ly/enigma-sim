@@ -24,13 +24,13 @@ export function AppShell() {
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
-      <header className="flex items-center justify-between px-6 py-3 bg-surface border-b border-border">
-        <h1 className="m-0 text-xl font-semibold tracking-wide">
+      <header className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-surface border-b border-border">
+        <h1 className="m-0 text-base sm:text-xl font-semibold tracking-wide">
           <span className="text-accent">Enigma</span> Machine Simulator
         </h1>
       </header>
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
-      <main id="main-content" className="flex-1 p-6 max-w-[960px] mx-auto w-full">
+      <main id="main-content" className="flex-1 p-3 sm:p-4 md:p-6 max-w-[960px] mx-auto w-full">
         {activeTab === 'simulator' && (
           <div role="tabpanel" id="tabpanel-simulator" aria-labelledby="tab-simulator">
             <ErrorBoundary fallbackMessage="The simulator encountered an error. Try resetting the configuration.">

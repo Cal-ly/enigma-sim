@@ -83,7 +83,7 @@ export function SimulatorView() {
   }, [batchInput, enigma]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3 sm:gap-5">
       <MachineConfig
         config={enigma.config}
         hasRotorConflict={enigma.hasRotorConflict}
@@ -104,7 +104,7 @@ export function SimulatorView() {
       <Keyboard onKeyPress={handleKeyPress} disabled={enigma.hasRotorConflict} />
 
       {/* Messages */}
-      <section className="bg-surface rounded-default p-4 border border-border" aria-live="polite">
+      <section className="bg-surface rounded-default p-3 sm:p-4 border border-border" aria-live="polite">
         <h3 className="m-0 mb-3 text-[0.85rem] uppercase tracking-widest text-muted">
           Messages
         </h3>
@@ -139,7 +139,7 @@ export function SimulatorView() {
         <h3 className="text-[0.85rem] uppercase tracking-widest text-muted mb-1.5">
           Batch Encrypt
         </h3>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-col sm:flex-row">
           <input
             type="text"
             value={batchInput}
@@ -161,7 +161,7 @@ export function SimulatorView() {
       </section>
 
       {/* Controls */}
-      <div className="flex gap-2 justify-center py-1">
+      <div className="flex gap-2 justify-center flex-wrap py-1">
         <button className={btnCls} onClick={enigma.randomize}>Random Config</button>
         <button className={btnCls} onClick={handleResetPositions}>Reset Positions</button>
         <button className={btnCls} onClick={handleClearAll}>Clear All</button>

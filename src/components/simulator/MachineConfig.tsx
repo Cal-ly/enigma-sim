@@ -38,8 +38,8 @@ export function MachineConfig({
   const reflectorOptions = isM4 ? REFLECTOR_M4 : REFLECTOR_3;
 
   return (
-    <section className="bg-surface rounded-default p-4 border border-border">
-      <div className="flex items-center justify-between mb-3">
+    <section className="bg-surface rounded-default p-3 sm:p-4 border border-border">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <h3 className="m-0 text-[0.85rem] uppercase tracking-widest text-muted">
           Machine Configuration
         </h3>
@@ -74,10 +74,10 @@ export function MachineConfig({
       </div>
 
       {/* Rotor slots */}
-      <div className="flex gap-5 flex-wrap">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-3">
         {/* Greek rotor (M4 only) */}
         {isM4 && config.greekRotor && onUpdateGreekRotor && (
-          <div className="bg-bg rounded-default p-3 border border-accent/40 min-w-[140px]">
+          <div className="bg-bg rounded-default p-3 border border-accent/40">
             <h4 className="m-0 mb-2 text-[0.8rem] text-accent">Greek Rotor</h4>
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1">
@@ -137,7 +137,7 @@ export function MachineConfig({
             .map((r) => r.name);
 
           return (
-            <div key={slot} className="bg-bg rounded-default p-3 border border-border min-w-[140px]">
+            <div key={slot} className="bg-bg rounded-default p-3 border border-border">
               <h4 className="m-0 mb-2 text-[0.8rem] text-accent">{SLOT_LABELS[slot]} Rotor</h4>
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">

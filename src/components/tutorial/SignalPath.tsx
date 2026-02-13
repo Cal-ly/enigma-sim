@@ -56,8 +56,9 @@ export function SignalPath({ steps, currentStep }: SignalPathProps) {
   const activeBlockIndex = activeStep ? getActiveBlockIndex(activeStep) : -1;
 
   return (
-    <div className="bg-surface rounded-default p-5 border border-border">
-      <div className="flex flex-wrap items-center justify-center gap-[0.15rem]">
+    <div className="bg-surface rounded-default p-3 sm:p-5 border border-border">
+      <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+        <div className="flex items-center justify-center gap-[0.15rem] min-w-max sm:min-w-0 sm:flex-wrap">
         {COMPONENTS.map((comp, i) => {
           const isActive = i === activeBlockIndex;
           const isVisited = activeBlockIndex >= 0 && i <= activeBlockIndex;
@@ -66,7 +67,7 @@ export function SignalPath({ steps, currentStep }: SignalPathProps) {
           return (
             <div key={comp.id} className="flex items-center gap-[0.15rem]">
               <div
-                className={`flex flex-col items-center justify-center w-[58px] h-16 rounded-default border-2 transition-all duration-200 relative
+                className={`flex flex-col items-center justify-center w-11 sm:w-[58px] h-12 sm:h-16 rounded-default border-2 transition-all duration-200 relative
                   ${isActive
                     ? 'border-accent bg-accent/10 signal-glow'
                     : isVisited
@@ -75,10 +76,10 @@ export function SignalPath({ steps, currentStep }: SignalPathProps) {
                   }`}
                 data-component={comp.id}
               >
-                <span className={`font-mono text-[0.9rem] font-bold ${isActive ? 'text-accent' : 'text-foreground'}`}>
+                <span className={`font-mono text-[0.7rem] sm:text-[0.9rem] font-bold ${isActive ? 'text-accent' : 'text-foreground'}`}>
                   {comp.shortLabel}
                 </span>
-                <span className="text-[0.55rem] text-muted text-center leading-tight">
+                <span className="text-[0.5rem] sm:text-[0.55rem] text-muted text-center leading-tight hidden sm:block">
                   {comp.label}
                 </span>
                 {signalLetter && (
@@ -95,6 +96,7 @@ export function SignalPath({ steps, currentStep }: SignalPathProps) {
             </div>
           );
         })}
+        </div>
       </div>
 
       {activeStep && (

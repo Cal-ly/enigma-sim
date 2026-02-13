@@ -4,7 +4,7 @@ import type { HistoryChapter } from '../../types';
 function ChapterNav({ chapters }: { chapters: HistoryChapter[] }) {
   return (
     <nav
-      className="flex gap-2 flex-wrap p-3 bg-surface rounded-default border border-border"
+      className="flex gap-2 flex-wrap p-2 sm:p-3 bg-surface rounded-default border border-border"
       aria-label="History sections"
     >
       {chapters.map((chapter) => (

@@ -22,11 +22,11 @@ export function TutorialView() {
         </p>
       </section>
 
-      <section className="bg-surface rounded-default p-4 border border-border">
+      <section className="bg-surface rounded-default p-3 sm:p-4 border border-border">
         <h3 className="m-0 mb-3 text-[0.85rem] uppercase tracking-widest text-muted">
           Choose a letter to trace
         </h3>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <label htmlFor="tutorial-letter" className="text-[0.9rem] text-muted">
             Input letter:
           </label>
@@ -83,7 +83,7 @@ export function TutorialView() {
               body: "A mechanical quirk causes the middle rotor to sometimes step on two consecutive keypresses. When the right rotor triggers the middle rotor to step, and the middle rotor is now at its own notch, it steps again on the very next keypress (along with the left rotor). This was an unintended behaviour that slightly reduced the cipher's period.",
             },
           ].map((card) => (
-            <div key={card.title} className="bg-surface rounded-default p-4 border border-border">
+            <div key={card.title} className="bg-surface rounded-default p-3 sm:p-4 border border-border">
               <h4 className="m-0 mb-2 text-accent text-[0.95rem]">{card.title}</h4>
               <p className="m-0 text-[0.9rem] leading-relaxed text-foreground">{card.body}</p>
             </div>

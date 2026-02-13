@@ -53,7 +53,7 @@ export function TabNav({ activeTab, onTabChange }: TabNavProps) {
             aria-selected={isActive}
             aria-controls={`tabpanel-${tab.id}`}
             tabIndex={isActive ? 0 : -1}
-            className={`px-6 py-2.5 bg-transparent border-none text-[0.9rem] cursor-pointer transition-colors duration-200
+            className={`flex-1 sm:flex-initial px-3 sm:px-6 py-2 sm:py-2.5 bg-transparent border-none text-[0.8rem] sm:text-[0.9rem] cursor-pointer transition-colors duration-200 text-center
               ${isActive
                 ? 'text-accent tab-active-bar'
                 : 'text-muted hover:text-foreground'
