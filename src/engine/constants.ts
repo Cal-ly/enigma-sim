@@ -7,7 +7,7 @@
  * Sources: Crypto Museum (https://www.cryptomuseum.com/crypto/enigma/wiring.htm)
  */
 
-import type { RotorName, ReflectorName } from '../types';
+import type { RotorName, ReflectorName, AnyRotorName } from '../types';
 
 export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const ALPHABET_SIZE = 26;
@@ -28,12 +28,14 @@ export function mod(n: number, m: number): number {
 }
 
 /** Rotor wiring definitions: maps input index → output character */
-export const ROTOR_WIRINGS: Record<RotorName, string> = {
-  'I':   'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
-  'II':  'AJDKSIRUXBLHWTMCQGZNPYFVOE',
-  'III': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
-  'IV':  'ESOVPZJAYQUIRHXLNFTGKDCMWB',
-  'V':   'VZBRGITYUPSDNHLXAWMJQOFECK',
+export const ROTOR_WIRINGS: Record<AnyRotorName, string> = {
+  'I':     'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+  'II':    'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+  'III':   'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+  'IV':    'ESOVPZJAYQUIRHXLNFTGKDCMWB',
+  'V':     'VZBRGITYUPSDNHLXAWMJQOFECK',
+  'Beta':  'LEYJVCNIXWPBQMDRTAKZGFUHOS',
+  'Gamma': 'FSOKANUERHMBTIYCWLQPZXVGJD',
 };
 
 /**
@@ -52,8 +54,10 @@ export const ROTOR_NOTCHES: Record<RotorName, string> = {
   'V':   'Z',
 };
 
-/** Reflector wiring definitions */
+/** Reflector wiring definitions (standard + M4 thin) */
 export const REFLECTOR_WIRINGS: Record<ReflectorName, string> = {
-  'UKW-B': 'YRUHQSLDPXNGOKMIEBFZCWVJAT',
-  'UKW-C': 'FVPJIAOYEDRZXWGCTKUQSBNMHL',
+  'UKW-B':      'YRUHQSLDPXNGOKMIEBFZCWVJAT',
+  'UKW-C':      'FVPJIAOYEDRZXWGCTKUQSBNMHL',
+  'UKW-B-thin': 'ENKQAUYWJICOPBLMDXZVFTHRGS',
+  'UKW-C-thin': 'RDOBJNTKVEHMLFCWZAXGYIPSUQ',
 };

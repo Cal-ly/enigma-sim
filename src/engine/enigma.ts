@@ -43,16 +43,29 @@ export class EnigmaMachine {
   private readonly leftRotor: Rotor;
   private readonly middleRotor: Rotor;
   private readonly rightRotor: Rotor;
+  private readonly greekRotor: Rotor | null;
   private readonly reflector: Reflector;
   private readonly plugboard: Plugboard;
   private readonly config: MachineConfig;
-  private readonly initialPositions: [Letter, Letter, Letter];
+  private readonly initialPositions: Letter[];
+  private readonly isM4: boolean;
 
   constructor(config: MachineConfig) {
-    // Validate distinct rotors
+    // Validate distinct standard rotors
     const rotorNames = config.rotors.map((r) => r.name);
     if (new Set(rotorNames).size !== 3) {
       throw new Error('All three rotor slots must have distinct rotors');
+    }
+
+    this.isM4 = !!config.greekRotor;
+
+    // Validate M4 constraints
+    const thinReflectors = ['UKW-B-thin', 'UKW-C-thin'];
+    if (this.isM4 && !thinReflectors.includes(config.reflector)) {
+      throw new Error('M4 mode requires a thin reflector (UKW-B-thin or UKW-C-thin)');
+    }
+    if (!this.isM4 && thinReflectors.includes(config.reflector)) {
+      throw new Error('Thin reflectors require a greek rotor (Beta or Gamma)');
     }
 
     this.config = config;
@@ -61,10 +74,23 @@ export class EnigmaMachine {
     this.leftRotor = new Rotor(left.name, left.ringSetting, left.position);
     this.middleRotor = new Rotor(middle.name, middle.ringSetting, middle.position);
     this.rightRotor = new Rotor(right.name, right.ringSetting, right.position);
+
+    if (config.greekRotor) {
+      this.greekRotor = new Rotor(
+        config.greekRotor.name,
+        config.greekRotor.ringSetting,
+        config.greekRotor.position,
+      );
+    } else {
+      this.greekRotor = null;
+    }
+
     this.reflector = new Reflector(config.reflector);
     this.plugboard = new Plugboard(config.plugboardPairs);
 
-    this.initialPositions = [left.position, middle.position, right.position];
+    this.initialPositions = config.greekRotor
+      ? [config.greekRotor.position, left.position, middle.position, right.position]
+      : [left.position, middle.position, right.position];
   }
 
   /**
@@ -76,113 +102,51 @@ export class EnigmaMachine {
       throw new Error(`Input must be a single uppercase letter A-Z, got: "${letter}"`);
     }
 
-    const positionsBefore: [Letter, Letter, Letter] = [
-      this.leftRotor.positionLetter,
-      this.middleRotor.positionLetter,
-      this.rightRotor.positionLetter,
-    ];
+    const positionsBefore: Letter[] = this.getPositions();
 
-    // Step rotors BEFORE encryption
+    // Step rotors BEFORE encryption (greek rotor never steps)
     this.stepRotors();
 
-    const positionsAfter: [Letter, Letter, Letter] = [
-      this.leftRotor.positionLetter,
-      this.middleRotor.positionLetter,
-      this.rightRotor.positionLetter,
-    ];
+    const positionsAfter: Letter[] = this.getPositions();
 
     const steps: SignalStep[] = [];
     let signal = letterToIndex(letter);
 
+    // Helper to record a step
+    const record = (component: SignalStep['component'], direction: SignalStep['direction'], before: number, after: number) => {
+      steps.push({ component, direction, inputLetter: indexToLetter(before), outputLetter: indexToLetter(after) });
+    };
+
     // 1. Plugboard forward
-    const afterPlugFwd = this.plugboard.swap(signal);
-    steps.push({
-      component: 'plugboard',
-      direction: 'forward',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterPlugFwd),
-    });
-    signal = afterPlugFwd;
-
+    const s1 = this.plugboard.swap(signal); record('plugboard', 'forward', signal, s1); signal = s1;
     // 2. Right rotor forward
-    const afterRightFwd = this.rightRotor.forward(signal);
-    steps.push({
-      component: 'rotor-r',
-      direction: 'forward',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterRightFwd),
-    });
-    signal = afterRightFwd;
-
+    const s2 = this.rightRotor.forward(signal); record('rotor-r', 'forward', signal, s2); signal = s2;
     // 3. Middle rotor forward
-    const afterMiddleFwd = this.middleRotor.forward(signal);
-    steps.push({
-      component: 'rotor-m',
-      direction: 'forward',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterMiddleFwd),
-    });
-    signal = afterMiddleFwd;
-
+    const s3 = this.middleRotor.forward(signal); record('rotor-m', 'forward', signal, s3); signal = s3;
     // 4. Left rotor forward
-    const afterLeftFwd = this.leftRotor.forward(signal);
-    steps.push({
-      component: 'rotor-l',
-      direction: 'forward',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterLeftFwd),
-    });
-    signal = afterLeftFwd;
+    const s4 = this.leftRotor.forward(signal); record('rotor-l', 'forward', signal, s4); signal = s4;
+
+    // 4b. Greek rotor forward (M4 only)
+    if (this.greekRotor) {
+      const sg = this.greekRotor.forward(signal); record('rotor-g', 'forward', signal, sg); signal = sg;
+    }
 
     // 5. Reflector
-    const afterReflector = this.reflector.reflect(signal);
-    steps.push({
-      component: 'reflector',
-      direction: 'forward',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterReflector),
-    });
-    signal = afterReflector;
+    const s5 = this.reflector.reflect(signal); record('reflector', 'forward', signal, s5); signal = s5;
+
+    // 5b. Greek rotor reverse (M4 only)
+    if (this.greekRotor) {
+      const sg = this.greekRotor.reverse(signal); record('rotor-g', 'reverse', signal, sg); signal = sg;
+    }
 
     // 6. Left rotor reverse
-    const afterLeftRev = this.leftRotor.reverse(signal);
-    steps.push({
-      component: 'rotor-l',
-      direction: 'reverse',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterLeftRev),
-    });
-    signal = afterLeftRev;
-
+    const s6 = this.leftRotor.reverse(signal); record('rotor-l', 'reverse', signal, s6); signal = s6;
     // 7. Middle rotor reverse
-    const afterMiddleRev = this.middleRotor.reverse(signal);
-    steps.push({
-      component: 'rotor-m',
-      direction: 'reverse',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterMiddleRev),
-    });
-    signal = afterMiddleRev;
-
+    const s7 = this.middleRotor.reverse(signal); record('rotor-m', 'reverse', signal, s7); signal = s7;
     // 8. Right rotor reverse
-    const afterRightRev = this.rightRotor.reverse(signal);
-    steps.push({
-      component: 'rotor-r',
-      direction: 'reverse',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterRightRev),
-    });
-    signal = afterRightRev;
-
-    // 9. Plugboard reverse (same swap operation — symmetric)
-    const afterPlugRev = this.plugboard.swap(signal);
-    steps.push({
-      component: 'plugboard',
-      direction: 'reverse',
-      inputLetter: indexToLetter(signal),
-      outputLetter: indexToLetter(afterPlugRev),
-    });
-    signal = afterPlugRev;
+    const s8 = this.rightRotor.reverse(signal); record('rotor-r', 'reverse', signal, s8); signal = s8;
+    // 9. Plugboard reverse
+    const s9 = this.plugboard.swap(signal); record('plugboard', 'reverse', signal, s9); signal = s9;
 
     return {
       inputLetter: letter,
@@ -201,47 +165,55 @@ export class EnigmaMachine {
     return Array.from(message, (ch) => this.encryptLetter(ch).outputLetter).join('');
   }
 
+  /** Get current rotor positions. For M4: [G, L, M, R]. For 3-rotor: [L, M, R]. */
+  private getPositions(): Letter[] {
+    const positions: Letter[] = [];
+    if (this.greekRotor) positions.push(this.greekRotor.positionLetter);
+    positions.push(
+      this.leftRotor.positionLetter,
+      this.middleRotor.positionLetter,
+      this.rightRotor.positionLetter,
+    );
+    return positions;
+  }
+
   /** Get current machine state snapshot */
   getState(): MachineState {
     return {
       config: this.config,
-      rotorPositions: [
-        this.leftRotor.positionLetter,
-        this.middleRotor.positionLetter,
-        this.rightRotor.positionLetter,
-      ],
+      rotorPositions: this.getPositions(),
     };
   }
 
   /** Reset rotor positions to their initial values (keeps configuration) */
   reset(): void {
-    this.leftRotor.resetPosition(this.initialPositions[0]);
-    this.middleRotor.resetPosition(this.initialPositions[1]);
-    this.rightRotor.resetPosition(this.initialPositions[2]);
+    if (this.isM4 && this.greekRotor) {
+      this.greekRotor.resetPosition(this.initialPositions[0]);
+      this.leftRotor.resetPosition(this.initialPositions[1]);
+      this.middleRotor.resetPosition(this.initialPositions[2]);
+      this.rightRotor.resetPosition(this.initialPositions[3]);
+    } else {
+      this.leftRotor.resetPosition(this.initialPositions[0]);
+      this.middleRotor.resetPosition(this.initialPositions[1]);
+      this.rightRotor.resetPosition(this.initialPositions[2]);
+    }
   }
 
   /**
    * Rotor stepping mechanism with double-step anomaly.
-   *
-   * Order matters: check notch conditions first, then step.
-   * The middle rotor's notch check must happen before any stepping occurs
-   * in this cycle — otherwise we'd miss the double-step case.
+   * Only the three standard rotors participate — the greek rotor NEVER steps.
    */
   private stepRotors(): void {
     const middleAtNotch = this.middleRotor.atNotch();
     const rightAtNotch = this.rightRotor.atNotch();
 
-    // Double-step: middle rotor at its notch triggers both middle + left
     if (middleAtNotch) {
       this.middleRotor.step();
       this.leftRotor.step();
-    }
-    // Normal turnover: right rotor at notch triggers middle
-    else if (rightAtNotch) {
+    } else if (rightAtNotch) {
       this.middleRotor.step();
     }
 
-    // Right rotor ALWAYS steps
     this.rightRotor.step();
   }
 }

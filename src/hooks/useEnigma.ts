@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { EnigmaMachine, ALPHABET } from '../engine';
-import type { MachineConfig, EncryptionResult, Letter, RotorName, ReflectorName } from '../types';
+import type { MachineConfig, EncryptionResult, Letter, RotorName, ReflectorName, GreekRotorName } from '../types';
 
 type EnigmaState = {
-  rotorPositions: [Letter, Letter, Letter];
+  rotorPositions: Letter[];
   inputHistory: string;
   outputHistory: string;
   lastResult: EncryptionResult | null;
@@ -20,8 +20,11 @@ const DEFAULT_CONFIG: MachineConfig = {
 };
 
 function freshState(cfg: MachineConfig): EnigmaState {
+  const positions: Letter[] = [];
+  if (cfg.greekRotor) positions.push(cfg.greekRotor.position);
+  positions.push(cfg.rotors[0].position, cfg.rotors[1].position, cfg.rotors[2].position);
   return {
-    rotorPositions: [cfg.rotors[0].position, cfg.rotors[1].position, cfg.rotors[2].position],
+    rotorPositions: positions,
     inputHistory: '',
     outputHistory: '',
     lastResult: null,
@@ -124,19 +127,48 @@ export function useEnigma() {
     applyConfig(newConfig);
   }, [applyConfig]);
 
-  /** Generate a random valid configuration: 3 distinct rotors, random positions/rings, random plugboard pairs */
-  const randomize = useCallback(() => {
-    const allRotors: RotorName[] = ['I', 'II', 'III', 'IV', 'V'];
-    const reflectors: ReflectorName[] = ['UKW-B', 'UKW-C'];
+  /** Toggle between 3-rotor and M4 mode */
+  const toggleM4 = useCallback(() => {
+    const cur = configRef.current;
+    if (cur.greekRotor) {
+      // Switch to 3-rotor mode: remove greek rotor, switch to standard reflector
+      const reflector: ReflectorName = cur.reflector === 'UKW-B-thin' ? 'UKW-B' : 'UKW-C';
+      applyConfig({ ...cur, greekRotor: undefined, reflector });
+    } else {
+      // Switch to M4 mode: add greek rotor, switch to thin reflector
+      const reflector: ReflectorName = cur.reflector === 'UKW-B' ? 'UKW-B-thin' : 'UKW-C-thin';
+      applyConfig({
+        ...cur,
+        greekRotor: { name: 'Beta', ringSetting: 1, position: 'A' },
+        reflector,
+      });
+    }
+  }, [applyConfig]);
 
-    // Shuffle and pick 3 distinct rotors
+  /** Update the greek rotor's name, ring setting, or position */
+  const updateGreekRotor = useCallback((
+    field: 'name' | 'ringSetting' | 'position',
+    value: GreekRotorName | number | string,
+  ) => {
+    const cur = configRef.current;
+    if (!cur.greekRotor) return;
+    const newGreek = { ...cur.greekRotor, [field]: value };
+    applyConfig({ ...cur, greekRotor: newGreek });
+  }, [applyConfig]);
+
+  /** Generate a random valid configuration: respects current M4 mode */
+  const randomize = useCallback(() => {
+    const cur = configRef.current;
+    const isM4 = !!cur.greekRotor;
+    const allRotors: RotorName[] = ['I', 'II', 'III', 'IV', 'V'];
+    const greekRotors: GreekRotorName[] = ['Beta', 'Gamma'];
+
     const shuffled = allRotors.sort(() => Math.random() - 0.5);
     const randomLetter = () => ALPHABET[Math.floor(Math.random() * 26)];
     const randomRing = () => Math.floor(Math.random() * 26) + 1;
 
-    // Generate 3-10 random plugboard pairs from available letters
     const available = ALPHABET.split('');
-    const pairCount = Math.floor(Math.random() * 8) + 3; // 3–10 pairs
+    const pairCount = Math.floor(Math.random() * 8) + 3;
     const pairs: [Letter, Letter][] = [];
     for (let i = 0; i < pairCount && available.length >= 2; i++) {
       const ai = Math.floor(Math.random() * available.length);
@@ -152,8 +184,17 @@ export function useEnigma() {
         { name: shuffled[1], ringSetting: randomRing(), position: randomLetter() },
         { name: shuffled[2], ringSetting: randomRing(), position: randomLetter() },
       ],
-      reflector: reflectors[Math.floor(Math.random() * reflectors.length)],
+      reflector: isM4
+        ? (['UKW-B-thin', 'UKW-C-thin'] as ReflectorName[])[Math.floor(Math.random() * 2)]
+        : (['UKW-B', 'UKW-C'] as ReflectorName[])[Math.floor(Math.random() * 2)],
       plugboardPairs: pairs,
+      ...(isM4 && {
+        greekRotor: {
+          name: greekRotors[Math.floor(Math.random() * 2)],
+          ringSetting: randomRing(),
+          position: randomLetter(),
+        },
+      }),
     };
     applyConfig(newConfig);
   }, [applyConfig]);
@@ -174,7 +215,10 @@ export function useEnigma() {
     updateReflector,
     addPlugboardPair,
     removePlugboardPair,
+    toggleM4,
+    updateGreekRotor,
     randomize,
   }), [config, state, hasRotorConflict, pressKey, resetPositions, configure,
-       updateRotor, updateReflector, addPlugboardPair, removePlugboardPair, randomize]);
+       updateRotor, updateReflector, addPlugboardPair, removePlugboardPair,
+       toggleM4, updateGreekRotor, randomize]);
 }

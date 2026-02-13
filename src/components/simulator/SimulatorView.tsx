@@ -89,6 +89,8 @@ export function SimulatorView() {
         hasRotorConflict={enigma.hasRotorConflict}
         onUpdateRotor={enigma.updateRotor}
         onUpdateReflector={enigma.updateReflector}
+        onToggleM4={enigma.toggleM4}
+        onUpdateGreekRotor={enigma.updateGreekRotor}
       />
 
       <PlugboardConfig

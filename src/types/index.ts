@@ -8,8 +8,14 @@
 /** Historical rotor identifiers (Wehrmacht Enigma I) */
 export type RotorName = 'I' | 'II' | 'III' | 'IV' | 'V';
 
+/** M4 Naval Enigma greek-wheel identifiers */
+export type GreekRotorName = 'Beta' | 'Gamma';
+
+/** Any rotor that can be instantiated */
+export type AnyRotorName = RotorName | GreekRotorName;
+
 /** Historical reflector identifiers */
-export type ReflectorName = 'UKW-B' | 'UKW-C';
+export type ReflectorName = 'UKW-B' | 'UKW-C' | 'UKW-B-thin' | 'UKW-C-thin';
 
 /** A single letter A–Z */
 export type Letter = string;
@@ -21,16 +27,24 @@ export type RotorConfig = {
   position: Letter;       // Initial position A–Z
 };
 
+/** Greek-wheel configuration for M4 machines */
+export type GreekRotorConfig = {
+  name: GreekRotorName;
+  ringSetting: number;
+  position: Letter;
+};
+
 /** Full machine configuration */
 export type MachineConfig = {
   rotors: [RotorConfig, RotorConfig, RotorConfig]; // [left, middle, right]
+  greekRotor?: GreekRotorConfig;                    // M4 only (Beta or Gamma)
   reflector: ReflectorName;
   plugboardPairs: [Letter, Letter][];               // e.g. [['A','B'], ['C','D']]
 };
 
 /** One step in the signal path through the machine */
 export type SignalStep = {
-  component: 'plugboard' | 'rotor-r' | 'rotor-m' | 'rotor-l' | 'reflector';
+  component: 'plugboard' | 'rotor-r' | 'rotor-m' | 'rotor-l' | 'rotor-g' | 'reflector';
   direction: 'forward' | 'reverse';
   inputLetter: Letter;
   outputLetter: Letter;
@@ -41,14 +55,14 @@ export type EncryptionResult = {
   inputLetter: Letter;
   outputLetter: Letter;
   steps: SignalStep[];
-  rotorPositionsBefore: [Letter, Letter, Letter];
-  rotorPositionsAfter: [Letter, Letter, Letter];
+  rotorPositionsBefore: Letter[];   // 3 or 4 elements ([G,] L, M, R)
+  rotorPositionsAfter: Letter[];
 };
 
 /** Snapshot of the machine's current state */
 export type MachineState = {
   config: MachineConfig;
-  rotorPositions: [Letter, Letter, Letter];
+  rotorPositions: Letter[];         // 3 or 4 elements
 };
 
 /** Extended step info for tutorial display, including "keypress" and "output" bookend steps */

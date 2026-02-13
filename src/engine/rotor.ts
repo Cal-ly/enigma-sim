@@ -24,14 +24,15 @@ import {
   indexToLetter,
   mod,
 } from './constants';
-import type { RotorName } from '../types';
+import type { AnyRotorName, RotorName } from '../types';
 
 export class Rotor {
   /** Forward wiring: index i maps to wiringForward[i] */
   private readonly wiringForward: number[];
   /** Reverse wiring: inverse of wiringForward */
   private readonly wiringReverse: number[];
-  /** The notch letter — when the rotor is at this position, it triggers turnover */
+  /** The notch letter — when the rotor is at this position, it triggers turnover.
+   *  -1 for greek (Beta/Gamma) rotors which never trigger turnover. */
   private readonly notch: number;
 
   /** Current rotor position (0–25, where 0 = A) */
@@ -39,9 +40,9 @@ export class Rotor {
   /** Ring setting offset (0–25) */
   private readonly _ringSetting: number;
 
-  readonly name: RotorName;
+  readonly name: AnyRotorName;
 
-  constructor(name: RotorName, ringSetting: number, initialPosition: string) {
+  constructor(name: AnyRotorName, ringSetting: number, initialPosition: string) {
     if (ringSetting < 1 || ringSetting > 26) {
       throw new Error(`Ring setting must be 1–26, got: ${ringSetting}`);
     }
@@ -60,7 +61,9 @@ export class Rotor {
       this.wiringReverse[this.wiringForward[i]] = i;
     }
 
-    this.notch = letterToIndex(ROTOR_NOTCHES[name]);
+    this.notch = (name in ROTOR_NOTCHES)
+      ? letterToIndex(ROTOR_NOTCHES[name as RotorName])
+      : -1; // Greek rotors (Beta/Gamma) have no notch
 
     // Ring setting: externally 1–26, internally 0–25
     this._ringSetting = ringSetting - 1;
