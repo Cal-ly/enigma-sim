@@ -1,10 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useEnigma } from '../../hooks/useEnigma';
+import { encodeConfig } from '../../utils/urlState';
 import { MachineConfig } from './MachineConfig';
 import { PlugboardConfig } from './PlugboardConfig';
 import { RotorDisplay } from './RotorDisplay';
 import { Lampboard } from './Lampboard';
 import { Keyboard } from './Keyboard';
+import { FrequencyAnalysis } from './FrequencyAnalysis';
 import type { Letter } from '../../types';
 
 const LAMP_DURATION_MS = 200;
@@ -21,13 +23,16 @@ export function SimulatorView() {
   const [litLamp, setLitLamp] = useState<Letter | null>(null);
   const [batchInput, setBatchInput] = useState('');
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState(false);
   const lampTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const shareTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     return () => {
       if (lampTimerRef.current) clearTimeout(lampTimerRef.current);
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
     };
   }, []);
 
@@ -82,6 +87,18 @@ export function SimulatorView() {
     setBatchInput('');
   }, [batchInput, enigma]);
 
+  const handleShareLink = useCallback(async () => {
+    const url = `${window.location.origin}${window.location.pathname}#${encodeConfig(enigma.config)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareFeedback(true);
+      if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
+      shareTimerRef.current = setTimeout(() => setShareFeedback(false), 1500);
+    } catch {
+      // Clipboard not available
+    }
+  }, [enigma.config]);
+
   return (
     <div className="flex flex-col gap-3 sm:gap-5">
       <MachineConfig
@@ -134,6 +151,8 @@ export function SimulatorView() {
         </div>
       </section>
 
+      <FrequencyAnalysis text={enigma.state.outputHistory} />
+
       {/* Batch Encrypt */}
       <section className="py-2">
         <h3 className="text-[0.85rem] uppercase tracking-widest text-muted mb-1.5">
@@ -163,6 +182,9 @@ export function SimulatorView() {
       {/* Controls */}
       <div className="flex gap-2 justify-center flex-wrap py-1">
         <button className={btnCls} onClick={enigma.randomize}>Random Config</button>
+        <button className={btnCls} onClick={handleShareLink}>
+          {shareFeedback ? '✓ Copied!' : 'Share Link'}
+        </button>
         <button className={btnCls} onClick={handleResetPositions}>Reset Positions</button>
         <button className={btnCls} onClick={handleClearAll}>Clear All</button>
       </div>

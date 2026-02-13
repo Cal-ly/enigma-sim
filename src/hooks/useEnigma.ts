@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { EnigmaMachine, ALPHABET } from '../engine';
+import { readConfigFromURL, writeConfigToURL } from '../utils/urlState';
 import type { MachineConfig, EncryptionResult, Letter, RotorName, ReflectorName, GreekRotorName } from '../types';
 
 type EnigmaState = {
@@ -32,16 +33,34 @@ function freshState(cfg: MachineConfig): EnigmaState {
 }
 
 export function useEnigma() {
-  const [config, setConfig] = useState<MachineConfig>(DEFAULT_CONFIG);
-  const machineRef = useRef<EnigmaMachine>(new EnigmaMachine(DEFAULT_CONFIG));
-  const configRef = useRef<MachineConfig>(DEFAULT_CONFIG);
+  const initialConfig = useMemo(() => {
+    const fromURL = readConfigFromURL();
+    if (!fromURL) return DEFAULT_CONFIG;
+    // Validate the URL config can actually create a machine
+    try {
+      new EnigmaMachine(fromURL);
+      return fromURL;
+    } catch {
+      return DEFAULT_CONFIG;
+    }
+  }, []);
+
+  const [config, setConfig] = useState<MachineConfig>(initialConfig);
+  const machineRef = useRef<EnigmaMachine>(new EnigmaMachine(initialConfig));
+  const configRef = useRef<MachineConfig>(initialConfig);
 
   // Keep configRef in sync so callbacks always see the latest config
   useEffect(() => {
     configRef.current = config;
   });
 
-  const [state, setState] = useState<EnigmaState>(freshState(DEFAULT_CONFIG));
+  // Sync valid configs to URL hash
+  useEffect(() => {
+    const distinct = new Set(config.rotors.map((r) => r.name)).size === 3;
+    if (distinct) writeConfigToURL(config);
+  }, [config]);
+
+  const [state, setState] = useState<EnigmaState>(freshState(initialConfig));
 
   /**
    * Apply a new config: recreate the machine and reset UI state.

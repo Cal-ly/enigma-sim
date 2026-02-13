@@ -1,6 +1,6 @@
 # Current State
 
-> **Last updated:** 2026-02-14
+> **Last updated:** 2026-02-13
 >
 > This document is maintained by Claude Code and reflects the project's current status. Updated after each significant task, phase completion, or session end.
 
@@ -8,57 +8,56 @@
 
 ## Active Phase
 
-**Phase:** All phases complete (Phases 1–5) + Post-completion refactoring
-**Status:** **COMPLETE — Production-ready**
+**Phase:** Extension roadmap (Tiers 0–4) complete
+**Status:** **COMPLETE — Production-ready with extensions**
 
 ---
 
 ## Last Completed
 
-Post-completion Refactoring:
-- Spec-crossreferenced code audit producing 11 categorised recommendations
-- Rewrote `useEnigma` hook to eliminate `setState` inside `setConfig` updater anti-pattern; added `applyConfig` helper and `useMemo` on return object
-- Added `useEffect` cleanup for lamp timer on `SimulatorView` unmount
-- Removed unused props: `encryptionResult` from `SignalPath`, `onGoToStep` from `StepControls`, dead `activeId` from `HistoryView`
-- Implemented full WAI-ARIA tabs pattern in `TabNav` + `AppShell` (arrow/Home/End key navigation, `aria-controls`, `tabIndex`, `role="tabpanel"`)
-- Added `:focus-visible` indicators and `prefers-reduced-motion` media query
-- Added `Rotor` constructor validation (ring setting 1–26, position A–Z) with descriptive error messages
-- Moved inline styles to CSS classes (`.config-row--reflector`, `.plugboard-empty`, `.plugboard-separator`)
-- Consolidated `TutorialStep`, `HistorySection`, `HistoryChapter` types into `src/types/index.ts`
-- Added 2 new validation test cases (7 assertions) — 68 tests passing
-- Final verification: `tsc -b` clean, 68 tests passing, production build succeeds (73.27 kB gzipped JS)
+Tier 4 — Polish Features:
+- URL state sharing: machine config persisted to URL hash, load from shared link, "Share Link" button with clipboard copy
+- Frequency analysis: bar chart showing letter distribution of ciphertext output
+- Meta tags: OG title/description, theme-color for mobile, inline SVG favicon
+- 19 new URL state tests (encode/decode round-trips, validation edge cases)
+- 178 tests passing, 65.77 kB brotli
 
-Phase 5 — Polish & Deploy:
-- GitHub Actions workflow for automated build, test, and deploy to GitHub Pages on push to `main`
-- Comprehensive README with live demo link, features, architecture overview, running instructions, references, and future extensions
-- Accessibility improvements: `aria-live` on message display, meta description
-- Code comments audit — all engine files have thorough "why" documentation
-- Final verification: `tsc -b` clean, 66 tests passing, production build succeeds (73.15 kB gzipped JS)
+Tier 3 — Responsive Mobile Layout:
+- All components responsive at sm (640px) and md (768px) breakpoints
+- MachineConfig uses CSS grid (1-col → 2-col → auto-fit)
+- Keyboard/Lampboard scale down on mobile (w-8/h-8 → sm:w-9/h-9)
+- SignalPath horizontally scrollable on mobile with smaller blocks
+- Batch encrypt input stacks vertically on mobile, control buttons wrap
 
-Phase 4 — History Content:
-- Three chapters: The Machine, Military Usage & Procedures, Breaking the Enigma
-- 12 sections with accurate historical content
-- Properly credits Polish mathematicians (Rejewski, Różycki, Zygalski) for first breaks
-- Distinguishes Polish Bomba from British Bombe
-- Structured as TypeScript data rendered through `HistoryView.tsx`
-- Clean typographic styling with chapter navigation
+Tier 2 — M4 Naval Enigma:
+- Beta/Gamma greek rotor wirings + UKW-B-thin/UKW-C-thin reflectors
+- 4-rotor signal path: plugboard → R → M → L → G → reflector → G → L → M → R → plugboard
+- Greek rotor never steps; validated pairing (thin reflector ↔ greek rotor)
+- M4 toggle checkbox, greek rotor config slot, 4-position rotor display
+- 14 M4-specific tests
 
-Phase 3 — Tutorial / How It Works:
-- `useTutorial` hook encapsulating step state and educational descriptions
-- Signal path visualization with 11 component blocks
-- Step-by-step navigation through encryption process
-- Interactive letter selection
-- Three property cards: no self-encryption, symmetry, double-step anomaly
+Tier 1 — Foundation:
+- Test suite expanded from 68 to 145 tests across 11 files
+- Coverage config (v8, 40% thresholds), pre-commit hooks (husky + lint-staged)
+- Bundle monitoring (size-limit, 85 kB cap), stale closure fix in useEnigma
+
+Tier 1c — Tailwind CSS v4 Migration:
+- Full migration from 975-line custom CSS to Tailwind utility classes
+- Custom @theme tokens, @utility definitions for skip-link, tab-active-bar, lamp-glow, signal-glow
+
+Tier 0 — Quick Wins (10 items):
+- Batch encrypt, clipboard copy, random config, physical keyboard guard for focus, ErrorBoundary, etc.
 
 ---
 
 ## Next Up
 
-Project is complete. Potential future work:
-- M4 Naval Enigma (four-rotor variant)
-- Message history save/load
-- Responsive mobile layout
-- Additional test coverage for UI components
+All planned tiers complete. Potential future work:
+- Operator manual overlay on the simulator (collapsible)
+- "Daily order" scenario mode (encrypt/decrypt challenge)
+- Additional historical machine variants (Enigma K, Swiss-K, Railway)
+- Animation of rotor stepping
+- Dark/light theme toggle
 
 ---
 
@@ -70,34 +69,45 @@ None.
 
 ## Files Created / Modified (All Phases)
 
-**Engine (Phase 1):**
-- `src/types/index.ts` — Shared TypeScript types (consolidated: `TutorialStep`, `HistorySection`, `HistoryChapter`)
-- `src/engine/constants.ts` — Rotor wirings, notches, alphabet utilities
-- `src/engine/rotor.ts` — Rotor class with forward/reverse and stepping
+**Engine (Phase 1 + Tier 2 M4):**
+- `src/types/index.ts` — Shared types (RotorName, GreekRotorName, AnyRotorName, MachineConfig, etc.)
+- `src/engine/constants.ts` — Wiring tables (I–V, Beta, Gamma, UKW-B/C, UKW-B-thin/C-thin)
+- `src/engine/rotor.ts` — Rotor class (supports AnyRotorName, optional notch)
 - `src/engine/reflector.ts` — Reflector class
 - `src/engine/plugboard.ts` — Plugboard with validation
-- `src/engine/enigma.ts` — Full machine orchestration with signal trace
+- `src/engine/enigma.ts` — Machine orchestration (3-rotor + M4 4-rotor signal paths)
 - `src/engine/index.ts` — Barrel export
 
-**Tests (Phase 1):**
-- `tests/engine/rotor.test.ts` — 26 tests (added constructor validation)
+**Utilities (Tier 4):**
+- `src/utils/urlState.ts` — URL hash encode/decode for shareable configs
+
+**Tests (Phase 1 + Tiers 1–4):**
+- `tests/engine/rotor.test.ts` — 26 tests
 - `tests/engine/reflector.test.ts` — 7 tests
 - `tests/engine/plugboard.test.ts` — 13 tests
-- `tests/engine/enigma.test.ts` — 16 tests
+- `tests/engine/enigma.test.ts` — 20 tests
 - `tests/engine/stepping.test.ts` — 6 tests
+- `tests/engine/m4.test.ts` — 14 tests (M4 Naval Enigma)
+- `tests/hooks/useEnigma.test.ts` — 23 tests
+- `tests/hooks/useTutorial.test.ts` — 22 tests
+- `tests/components/Keyboard.test.tsx` — 9 tests
+- `tests/components/TabNav.test.tsx` — 11 tests
+- `tests/components/PlugboardConfig.test.tsx` — 8 tests
+- `tests/utils/urlState.test.ts` — 19 tests (URL encode/decode)
 
 **Layout (Phase 2):**
 - `src/components/layout/AppShell.tsx` — App shell with tab routing
 - `src/components/layout/TabNav.tsx` — Tab navigation
 
-**Simulator (Phase 2):**
-- `src/components/simulator/SimulatorView.tsx` — Composition root
-- `src/components/simulator/MachineConfig.tsx` — Rotor/reflector config
+**Simulator (Phase 2 + Tiers 0–4):**
+- `src/components/simulator/SimulatorView.tsx` — Composition root (batch encrypt, clipboard, share link, frequency analysis)
+- `src/components/simulator/MachineConfig.tsx` — Rotor/reflector config (M4 toggle, greek rotor slot, responsive grid)
 - `src/components/simulator/PlugboardConfig.tsx` — Plugboard management
-- `src/components/simulator/Keyboard.tsx` — QWERTZ keyboard
-- `src/components/simulator/Lampboard.tsx` — Output lamp display
-- `src/components/simulator/RotorDisplay.tsx` — Rotor position windows
-- `src/hooks/useEnigma.ts` — Engine state hook
+- `src/components/simulator/Keyboard.tsx` — QWERTZ keyboard (responsive sizing)
+- `src/components/simulator/Lampboard.tsx` — Output lamp display (responsive sizing)
+- `src/components/simulator/RotorDisplay.tsx` — Rotor position windows (3 or 4 rotors)
+- `src/components/simulator/FrequencyAnalysis.tsx` — Letter frequency bar chart
+- `src/hooks/useEnigma.ts` — Engine state hook (URL persistence, M4 support)
 
 **Tutorial (Phase 3):**
 - `src/hooks/useTutorial.ts` — Tutorial step management
@@ -109,19 +119,23 @@ None.
 - `src/content/history.ts` — Structured history data (3 chapters, 12 sections)
 - `src/components/history/HistoryView.tsx` — History rendering
 
-**Polish (Phase 5):**
+**Polish (Phase 5 + Tiers 0–4):**
 - `.github/workflows/deploy.yml` — CI/CD pipeline
 - `README.md` — Comprehensive project documentation
-- `index.html` — Meta description
-- `src/index.css` — Full design system (simulator + tutorial + history CSS)
+- `index.html` — Meta description, OG tags, theme-color, inline SVG favicon
+- `src/index.css` — Tailwind v4 entry (design tokens, custom utilities)
+- `.husky/pre-commit` — Pre-commit hooks
+- `vite.config.ts` — Tailwind + React plugins, coverage config
+- `package.json` — Scripts, size-limit, lint-staged config
 
 ---
 
 ## Test Status
 
-- **Engine tests:** 68 passing, 0 failing
-- **Build:** Production build succeeds (50 modules, 73.27 kB gzipped)
+- **Total tests:** 178 passing across 12 files, 0 failing
+- **Build:** Production build succeeds (51 modules, ~65.8 kB brotli, under 85 kB limit)
 - **TypeScript:** Clean compilation across all configs
+- **Coverage:** v8 provider with 40% thresholds (lines, functions, branches, statements)
 
 ---
 
@@ -134,3 +148,7 @@ None.
 | useEnigma: sibling setState calls instead of nested updaters | Avoids side-effects inside React state updater functions; safer under concurrent mode | 2026-02-14 |
 | Consolidated shared types in src/types/index.ts | Single source of truth for types shared across hooks, content, and components | 2026-02-14 |
 | Notch check happens before any stepping in stepRotors() | Required for correct double-step: must read both notch states before mutating positions | 2026-02-13 |
+| Tailwind CSS v4 with @theme tokens | Single source for design tokens, utility-first = smaller CSS, better DX | 2026-02-13 |
+| M4 greek rotor notch = -1 (never steps) | Historical accuracy: greek wheel was static, only 3 standard rotors step | 2026-02-13 |
+| URL hash for config sharing | No server needed, bookmarkable, replaceState avoids history pollution | 2026-02-13 |
+| CSS grid (auto-fit) for MachineConfig | Handles 3 or 4 rotor slots without conditional grid-cols value | 2026-02-13 |

@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useEnigma } from '../../src/hooks/useEnigma';
 
 describe('useEnigma', () => {
+  // Clear URL hash before each test to prevent state leaking between tests
+  beforeEach(() => {
+    window.location.hash = '';
+  });
+
   describe('initial state', () => {
     it('starts with default config (I-II-III, UKW-B, no plugboard)', () => {
       const { result } = renderHook(() => useEnigma());
