@@ -1,18 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { EnigmaMachine } from '../engine';
-import type { MachineConfig, EncryptionResult, SignalStep } from '../types';
-
-/** Extended step info for tutorial display, including the "keypress" and "output" bookend steps */
-export type TutorialStep = {
-  stepIndex: number;
-  totalSteps: number;
-  label: string;
-  description: string;
-  highlightComponent: SignalStep['component'] | 'input' | 'output';
-  direction: 'forward' | 'reverse' | 'none';
-  inputLetter: string;
-  outputLetter: string;
-};
+import type { MachineConfig, EncryptionResult, TutorialStep } from '../types';
 
 const COMPONENT_DESCRIPTIONS: Record<string, string> = {
   'input':

@@ -1,14 +1,4 @@
-export interface HistorySection {
-  id: string;
-  title: string;
-  paragraphs: string[];
-}
-
-export interface HistoryChapter {
-  id: string;
-  title: string;
-  sections: HistorySection[];
-}
+import type { HistoryChapter } from '../types';
 
 export const historyContent: HistoryChapter[] = [
   {

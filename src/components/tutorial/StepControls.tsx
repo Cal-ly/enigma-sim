@@ -3,7 +3,6 @@ type StepControlsProps = {
   totalSteps: number;
   onNext: () => void;
   onPrev: () => void;
-  onGoToStep: (step: number) => void;
 };
 
 export function StepControls({

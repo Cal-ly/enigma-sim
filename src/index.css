@@ -22,6 +22,26 @@
   box-sizing: border-box;
 }
 
+/* Visible focus indicator for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
@@ -139,6 +159,10 @@ body {
   flex-wrap: wrap;
 }
 
+.config-row--reflector {
+  margin-bottom: 0.75rem;
+}
+
 .config-group {
   display: flex;
   flex-direction: column;
@@ -218,6 +242,15 @@ body {
   flex-wrap: wrap;
   margin-bottom: 0.75rem;
   min-height: 2rem;
+}
+
+.plugboard-empty {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.plugboard-separator {
+  color: var(--color-text-muted);
 }
 
 .plugboard-pair {

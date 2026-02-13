@@ -20,6 +20,19 @@ describe('Rotor', () => {
       const rotor = new Rotor('III', 5, 'A');
       expect(rotor.ringSetting).toBe(4); // 5 externally → 4 internally
     });
+
+    it('rejects ring settings outside 1–26 range', () => {
+      expect(() => new Rotor('I', 0, 'A')).toThrow('Ring setting must be 1–26');
+      expect(() => new Rotor('I', 27, 'A')).toThrow('Ring setting must be 1–26');
+      expect(() => new Rotor('I', -1, 'A')).toThrow('Ring setting must be 1–26');
+    });
+
+    it('rejects invalid initial positions', () => {
+      expect(() => new Rotor('I', 1, 'a')).toThrow('Initial position must be a single letter A–Z');
+      expect(() => new Rotor('I', 1, '')).toThrow('Initial position must be a single letter A–Z');
+      expect(() => new Rotor('I', 1, '1')).toThrow('Initial position must be a single letter A–Z');
+      expect(() => new Rotor('I', 1, 'AB')).toThrow('Initial position must be a single letter A–Z');
+    });
   });
 
   describe('forward substitution', () => {

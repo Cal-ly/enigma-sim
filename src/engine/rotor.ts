@@ -42,6 +42,13 @@ export class Rotor {
   readonly name: RotorName;
 
   constructor(name: RotorName, ringSetting: number, initialPosition: string) {
+    if (ringSetting < 1 || ringSetting > 26) {
+      throw new Error(`Ring setting must be 1–26, got: ${ringSetting}`);
+    }
+    if (!/^[A-Z]$/.test(initialPosition)) {
+      throw new Error(`Initial position must be a single letter A–Z, got: "${initialPosition}"`);
+    }
+
     this.name = name;
 
     const wiringStr = ROTOR_WIRINGS[name];

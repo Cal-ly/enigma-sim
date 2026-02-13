@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useEnigma } from '../../hooks/useEnigma';
 import { MachineConfig } from './MachineConfig';
 import { PlugboardConfig } from './PlugboardConfig';
@@ -9,10 +9,22 @@ import type { Letter } from '../../types';
 
 const LAMP_DURATION_MS = 200;
 
+/** Format message in 5-letter groups for readability */
+function formatMessage(text: string): string {
+  return text.replace(/(.{5})/g, '$1 ').trim();
+}
+
 export function SimulatorView() {
   const enigma = useEnigma();
   const [litLamp, setLitLamp] = useState<Letter | null>(null);
   const lampTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Clean up lamp timer on unmount to prevent state updates after unmount
+  useEffect(() => {
+    return () => {
+      if (lampTimerRef.current) clearTimeout(lampTimerRef.current);
+    };
+  }, []);
 
   const handleKeyPress = useCallback(
     (letter: string) => {
@@ -46,11 +58,6 @@ export function SimulatorView() {
     });
     setLitLamp(null);
   }, [enigma]);
-
-  // Format message in 5-letter groups for readability
-  const formatMessage = (text: string): string => {
-    return text.replace(/(.{5})/g, '$1 ').trim();
-  };
 
   return (
     <div className="simulator">

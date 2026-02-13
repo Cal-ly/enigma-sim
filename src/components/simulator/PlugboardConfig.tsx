@@ -34,7 +34,7 @@ export function PlugboardConfig({ pairs, onAddPair, onRemovePair }: PlugboardCon
 
       <div className="plugboard-pairs">
         {pairs.length === 0 && (
-          <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+          <span className="plugboard-empty">
             No pairs configured (passthrough)
           </span>
         )}
@@ -68,7 +68,7 @@ export function PlugboardConfig({ pairs, onAddPair, onRemovePair }: PlugboardCon
               <option key={ch} value={ch}>{ch}</option>
             ))}
           </select>
-          <span style={{ color: 'var(--color-text-muted)' }}>↔</span>
+          <span className="plugboard-separator">↔</span>
           <select
             value={letterB}
             onChange={(e) => setLetterB(e.target.value)}

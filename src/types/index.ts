@@ -50,3 +50,29 @@ export type MachineState = {
   config: MachineConfig;
   rotorPositions: [Letter, Letter, Letter];
 };
+
+/** Extended step info for tutorial display, including "keypress" and "output" bookend steps */
+export type TutorialStep = {
+  stepIndex: number;
+  totalSteps: number;
+  label: string;
+  description: string;
+  highlightComponent: SignalStep['component'] | 'input' | 'output';
+  direction: 'forward' | 'reverse' | 'none';
+  inputLetter: string;
+  outputLetter: string;
+};
+
+/** A section within a history chapter */
+export type HistorySection = {
+  id: string;
+  title: string;
+  paragraphs: string[];
+};
+
+/** A top-level history chapter containing multiple sections */
+export type HistoryChapter = {
+  id: string;
+  title: string;
+  sections: HistorySection[];
+};

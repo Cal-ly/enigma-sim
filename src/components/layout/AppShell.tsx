@@ -17,9 +17,21 @@ export function AppShell() {
       </header>
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="app-content">
-        {activeTab === 'simulator' && <SimulatorView />}
-        {activeTab === 'tutorial' && <TutorialView />}
-        {activeTab === 'history' && <HistoryView />}
+        {activeTab === 'simulator' && (
+          <div role="tabpanel" id="tabpanel-simulator" aria-labelledby="tab-simulator">
+            <SimulatorView />
+          </div>
+        )}
+        {activeTab === 'tutorial' && (
+          <div role="tabpanel" id="tabpanel-tutorial" aria-labelledby="tab-tutorial">
+            <TutorialView />
+          </div>
+        )}
+        {activeTab === 'history' && (
+          <div role="tabpanel" id="tabpanel-history" aria-labelledby="tab-history">
+            <HistoryView />
+          </div>
+        )}
       </main>
     </div>
   );

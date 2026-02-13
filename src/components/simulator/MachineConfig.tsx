@@ -26,7 +26,7 @@ export function MachineConfig({
     <section className="machine-config">
       <h3>Machine Configuration</h3>
 
-      <div className="config-row" style={{ marginBottom: '0.75rem' }}>
+      <div className="config-row config-row--reflector">
         <div className="config-group">
           <label htmlFor="reflector-select">Reflector</label>
           <select

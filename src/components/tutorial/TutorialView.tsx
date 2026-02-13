@@ -48,7 +48,6 @@ export function TutorialView() {
           <SignalPath
             steps={tutorial.tutorialSteps}
             currentStep={tutorial.currentStep}
-            encryptionResult={tutorial.encryptionResult}
           />
 
           <StepControls
@@ -56,7 +55,6 @@ export function TutorialView() {
             totalSteps={tutorial.tutorialSteps.length}
             onNext={tutorial.nextStep}
             onPrev={tutorial.prevStep}
-            onGoToStep={tutorial.goToStep}
           />
         </>
       )}

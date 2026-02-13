@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { EnigmaMachine } from '../engine';
 import type { MachineConfig, EncryptionResult, Letter, RotorName, ReflectorName } from '../types';
 
@@ -19,18 +19,41 @@ const DEFAULT_CONFIG: MachineConfig = {
   plugboardPairs: [],
 };
 
+function freshState(cfg: MachineConfig): EnigmaState {
+  return {
+    rotorPositions: [cfg.rotors[0].position, cfg.rotors[1].position, cfg.rotors[2].position],
+    inputHistory: '',
+    outputHistory: '',
+    lastResult: null,
+  };
+}
+
 export function useEnigma() {
   const [config, setConfig] = useState<MachineConfig>(DEFAULT_CONFIG);
   const machineRef = useRef<EnigmaMachine>(new EnigmaMachine(DEFAULT_CONFIG));
 
-  const [state, setState] = useState<EnigmaState>({
-    rotorPositions: ['A', 'A', 'A'],
-    inputHistory: '',
-    outputHistory: '',
-    lastResult: null,
-  });
+  const [state, setState] = useState<EnigmaState>(freshState(DEFAULT_CONFIG));
 
-  const pressKey = useCallback((letter: string) => {
+  /**
+   * Apply a new config: recreate the machine and reset UI state.
+   * Returns true if the config was valid, false if the machine couldn't be created
+   * (e.g. duplicate rotors during mid-selection).
+   */
+  const applyConfig = useCallback((newConfig: MachineConfig): boolean => {
+    try {
+      machineRef.current = new EnigmaMachine(newConfig);
+      setConfig(newConfig);
+      setState(freshState(newConfig));
+      return true;
+    } catch {
+      // Invalid config — update config state to show the UI selection,
+      // but don't recreate the machine (keep the last valid one)
+      setConfig(newConfig);
+      return false;
+    }
+  }, []);
+
+  const pressKey = useCallback((letter: string): EncryptionResult | undefined => {
     const upper = letter.toUpperCase();
     if (!/^[A-Z]$/.test(upper)) return;
 
@@ -58,19 +81,8 @@ export function useEnigma() {
   }, []);
 
   const configure = useCallback((newConfig: MachineConfig) => {
-    machineRef.current = new EnigmaMachine(newConfig);
-    setConfig(newConfig);
-    setState({
-      rotorPositions: [
-        newConfig.rotors[0].position,
-        newConfig.rotors[1].position,
-        newConfig.rotors[2].position,
-      ],
-      inputHistory: '',
-      outputHistory: '',
-      lastResult: null,
-    });
-  }, []);
+    applyConfig(newConfig);
+  }, [applyConfig]);
 
   const updateRotor = useCallback((
     slot: 0 | 1 | 2,
@@ -80,92 +92,43 @@ export function useEnigma() {
     setConfig((prev) => {
       const newRotors = [...prev.rotors] as MachineConfig['rotors'];
       newRotors[slot] = { ...newRotors[slot], [field]: value };
-
-      const newConfig: MachineConfig = { ...prev, rotors: newRotors };
-      try {
-        machineRef.current = new EnigmaMachine(newConfig);
-        setState({
-          rotorPositions: [
-            newConfig.rotors[0].position,
-            newConfig.rotors[1].position,
-            newConfig.rotors[2].position,
-          ],
-          inputHistory: '',
-          outputHistory: '',
-          lastResult: null,
-        });
-      } catch {
-        // Invalid config (e.g. duplicate rotors during selection) — update config state
-        // but don't create machine yet
-      }
-      return newConfig;
+      return { ...prev, rotors: newRotors };
     });
-  }, []);
+    // Derive the new config after React processes the setConfig updater,
+    // then reconcile machine + state outside the updater (no side effects).
+    // We need the config synchronously, so compute it inline:
+    const newRotors = [...config.rotors] as MachineConfig['rotors'];
+    newRotors[slot] = { ...newRotors[slot], [field]: value };
+    const newConfig: MachineConfig = { ...config, rotors: newRotors };
+    applyConfig(newConfig);
+  }, [config, applyConfig]);
 
   const updateReflector = useCallback((reflector: ReflectorName) => {
-    setConfig((prev) => {
-      const newConfig: MachineConfig = { ...prev, reflector };
-      machineRef.current = new EnigmaMachine(newConfig);
-      setState({
-        rotorPositions: [
-          newConfig.rotors[0].position,
-          newConfig.rotors[1].position,
-          newConfig.rotors[2].position,
-        ],
-        inputHistory: '',
-        outputHistory: '',
-        lastResult: null,
-      });
-      return newConfig;
-    });
-  }, []);
+    const newConfig: MachineConfig = { ...config, reflector };
+    applyConfig(newConfig);
+  }, [config, applyConfig]);
 
   const addPlugboardPair = useCallback((a: Letter, b: Letter) => {
-    setConfig((prev) => {
-      const newPairs = [...prev.plugboardPairs, [a, b] as [Letter, Letter]];
-      const newConfig: MachineConfig = { ...prev, plugboardPairs: newPairs };
-      try {
-        machineRef.current = new EnigmaMachine(newConfig);
-        setState({
-          rotorPositions: [
-            newConfig.rotors[0].position,
-            newConfig.rotors[1].position,
-            newConfig.rotors[2].position,
-          ],
-          inputHistory: '',
-          outputHistory: '',
-          lastResult: null,
-        });
-      } catch {
-        return prev; // Invalid pair — don't update
-      }
-      return newConfig;
-    });
-  }, []);
+    const newPairs = [...config.plugboardPairs, [a, b] as [Letter, Letter]];
+    const newConfig: MachineConfig = { ...config, plugboardPairs: newPairs };
+    if (!applyConfig(newConfig)) {
+      // Invalid pair — revert (applyConfig already kept the old machine)
+      setConfig(config);
+    }
+  }, [config, applyConfig]);
 
   const removePlugboardPair = useCallback((index: number) => {
-    setConfig((prev) => {
-      const newPairs = prev.plugboardPairs.filter((_, i) => i !== index);
-      const newConfig: MachineConfig = { ...prev, plugboardPairs: newPairs };
-      machineRef.current = new EnigmaMachine(newConfig);
-      setState({
-        rotorPositions: [
-          newConfig.rotors[0].position,
-          newConfig.rotors[1].position,
-          newConfig.rotors[2].position,
-        ],
-        inputHistory: '',
-        outputHistory: '',
-        lastResult: null,
-      });
-      return newConfig;
-    });
-  }, []);
+    const newPairs = config.plugboardPairs.filter((_, i) => i !== index);
+    const newConfig: MachineConfig = { ...config, plugboardPairs: newPairs };
+    applyConfig(newConfig);
+  }, [config, applyConfig]);
 
   // Check if current rotor selection has duplicates
   const hasRotorConflict = new Set(config.rotors.map((r) => r.name)).size !== 3;
 
-  return {
+  // Memoize return object so consumers can use it in dependency arrays
+  // without triggering re-renders on every parent render
+  return useMemo(() => ({
     config,
     state,
     hasRotorConflict,
@@ -176,5 +139,6 @@ export function useEnigma() {
     updateReflector,
     addPlugboardPair,
     removePlugboardPair,
-  };
+  }), [config, state, hasRotorConflict, pressKey, resetPositions, configure,
+       updateRotor, updateReflector, addPlugboardPair, removePlugboardPair]);
 }

@@ -1,14 +1,14 @@
 import { historyContent } from '../../content/history';
-import type { HistoryChapter } from '../../content/history';
+import type { HistoryChapter } from '../../types';
 
-function ChapterNav({ chapters, activeId }: { chapters: HistoryChapter[]; activeId: string | null }) {
+function ChapterNav({ chapters }: { chapters: HistoryChapter[] }) {
   return (
     <nav className="history-nav" aria-label="History sections">
       {chapters.map((chapter) => (
         <a
           key={chapter.id}
           href={`#${chapter.id}`}
-          className={`history-nav-link ${activeId === chapter.id ? 'active' : ''}`}
+          className="history-nav-link"
         >
           {chapter.title}
         </a>
@@ -44,7 +44,7 @@ export function HistoryView() {
           wartime necessity, and the birth of modern computer science.
         </p>
       </div>
-      <ChapterNav chapters={historyContent} activeId={null} />
+      <ChapterNav chapters={historyContent} />
       <div className="history-content">
         {historyContent.map((chapter) => (
           <Chapter key={chapter.id} chapter={chapter} />

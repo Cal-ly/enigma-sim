@@ -1,10 +1,8 @@
-import type { TutorialStep } from '../../hooks/useTutorial';
-import type { EncryptionResult } from '../../types';
+import type { TutorialStep } from '../../types';
 
 type SignalPathProps = {
   steps: TutorialStep[];
   currentStep: number;
-  encryptionResult: EncryptionResult | null;
 };
 
 /**
