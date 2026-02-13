@@ -43,15 +43,18 @@ export function MachineConfig({
         <h3 className="m-0 text-[0.85rem] uppercase tracking-widest text-muted">
           Machine Configuration
         </h3>
-        <label className="flex items-center gap-2 cursor-pointer text-[0.8rem] text-muted">
-          <input
-            type="checkbox"
-            checked={isM4}
-            onChange={onToggleM4}
-            className="accent-accent"
+        <div className="flex items-center gap-2">
+          <span className="text-[0.8rem] text-muted">3-Rotor</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isM4}
+            aria-label="Toggle M4 Naval mode"
+            onClick={onToggleM4}
+            className={`toggle-track ${isM4 ? 'toggle-track-on' : ''}`}
           />
-          M4 Naval
-        </label>
+          <span className={`text-[0.8rem] ${isM4 ? 'text-accent font-semibold' : 'text-muted'}`}>M4 Naval</span>
+        </div>
       </div>
 
       {/* Reflector row */}

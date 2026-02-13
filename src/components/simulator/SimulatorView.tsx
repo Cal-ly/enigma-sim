@@ -7,6 +7,8 @@ import { RotorDisplay } from './RotorDisplay';
 import { Lampboard } from './Lampboard';
 import { Keyboard } from './Keyboard';
 import { FrequencyAnalysis } from './FrequencyAnalysis';
+import { OperatorsManual } from './OperatorsManual';
+import { TodaysOrder } from './TodaysOrder';
 import type { Letter } from '../../types';
 
 const LAMP_DURATION_MS = 200;
@@ -188,6 +190,9 @@ export function SimulatorView() {
         <button className={btnCls} onClick={handleResetPositions}>Reset Positions</button>
         <button className={btnCls} onClick={handleClearAll}>Clear All</button>
       </div>
+
+      <OperatorsManual />
+      <TodaysOrder />
     </div>
   );
 }
