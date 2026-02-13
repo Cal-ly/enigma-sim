@@ -5,3 +5,4 @@ Possible extensions
 
 - Operator manual on the simulator (collabsible)
 - A "Todays order" letting one play out an encrypt/decrypt message
+- Add favicon.png
