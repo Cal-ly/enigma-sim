@@ -114,4 +114,40 @@
 
 **Context:** Completing all 5 phases of the project.
 **What happened:** The phased approach (engine → UI → tutorial → history → polish) kept each phase focused and testable. Engine tests remained green throughout all UI work. The clean separation between engine (pure TS) and UI (React) meant zero regressions.
-**Takeaway:** For simulator projects, build the engine first with comprehensive tests, then layer the UI on top. The engine becomes a reliable foundation that doesn't change._
+**Takeaway:** For simulator projects, build the engine first with comprehensive tests, then layer the UI on top. The engine becomes a reliable foundation that doesn't change.
+
+---
+
+## Post-Completion Refactoring
+
+### 2026-02-14 — setState inside state updater functions is a subtle anti-pattern
+
+**[LL]**
+
+**Context:** Reviewing `useEnigma` hook against React concurrent mode best practices.
+**What happened:** The original code called `setState()` inside `setConfig(prev => { ... setState(...); return newConfig })` updater functions. While this works in React 18 legacy mode, it violates the principle that updater functions should be pure. Under concurrent mode, React may call updaters multiple times, leading to duplicated side-effects.
+**Takeaway:** Never call side-effectful functions (including other state setters) inside state updater callbacks. Extract a helper function (`applyConfig`) that calls multiple `setState` calls as siblings, not nested. Wrap hook return objects in `useMemo` for stable references.
+
+### 2026-02-14 — WAI-ARIA tabs pattern requires bidirectional keyboard + roving tabindex
+
+**[LL]**
+
+**Context:** Upgrading `TabNav` from basic `role="tab"` buttons to a complete WAI-ARIA tabs implementation.
+**What happened:** Simply having `role="tab"` and `role="tablist"` is insufficient. The full pattern requires: arrow key navigation (Left/Right + Home/End), roving `tabIndex` (0 for active, -1 for inactive), `aria-controls` linking tabs to `tabpanel` elements, and `id`/`aria-labelledby` on panels.
+**Takeaway:** Partial ARIA is worse than no ARIA — screen readers expect the full keyboard contract once roles are declared. Always implement the complete pattern per WAI-ARIA Authoring Practices.
+
+### 2026-02-14 — useEffect cleanup prevents timer leaks on unmount
+
+**[LL]**
+
+**Context:** `SimulatorView` used `setTimeout` for lamp flash duration via a ref.
+**What happened:** A `useEffect` cleanup function was missing, so if the component unmounted while a lamp was active, the timer would fire on an unmounted component. Fixed by adding a cleanup that clears the timer ref on unmount.
+**Takeaway:** Any `setTimeout`/`setInterval` stored in a ref needs a corresponding `useEffect` return cleanup. This is easy to miss when the timer is set in an event handler rather than an effect.
+
+### 2026-02-14 — Constructor validation catches integration errors early
+
+**[LI]**
+
+**Context:** Adding range and format validation to the `Rotor` constructor.
+**What happened:** The `Rotor` class previously trusted callers to provide valid `ringSetting` (1–26) and `initialPosition` (A–Z). Adding throws with descriptive messages means misconfiguration explodes at construction time rather than producing silently wrong encryption.
+**Takeaway:** Defensive validation at trust boundaries (constructors, public API entry points) is worth the minimal runtime cost. Descriptive error messages make debugging configuration issues trivial.

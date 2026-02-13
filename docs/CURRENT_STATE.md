@@ -1,6 +1,6 @@
 # Current State
 
-> **Last updated:** 2026-02-13
+> **Last updated:** 2026-02-14
 >
 > This document is maintained by Claude Code and reflects the project's current status. Updated after each significant task, phase completion, or session end.
 
@@ -8,12 +8,25 @@
 
 ## Active Phase
 
-**Phase:** All phases complete (Phases 1–5)
+**Phase:** All phases complete (Phases 1–5) + Post-completion refactoring
 **Status:** **COMPLETE — Production-ready**
 
 ---
 
 ## Last Completed
+
+Post-completion Refactoring:
+- Spec-crossreferenced code audit producing 11 categorised recommendations
+- Rewrote `useEnigma` hook to eliminate `setState` inside `setConfig` updater anti-pattern; added `applyConfig` helper and `useMemo` on return object
+- Added `useEffect` cleanup for lamp timer on `SimulatorView` unmount
+- Removed unused props: `encryptionResult` from `SignalPath`, `onGoToStep` from `StepControls`, dead `activeId` from `HistoryView`
+- Implemented full WAI-ARIA tabs pattern in `TabNav` + `AppShell` (arrow/Home/End key navigation, `aria-controls`, `tabIndex`, `role="tabpanel"`)
+- Added `:focus-visible` indicators and `prefers-reduced-motion` media query
+- Added `Rotor` constructor validation (ring setting 1–26, position A–Z) with descriptive error messages
+- Moved inline styles to CSS classes (`.config-row--reflector`, `.plugboard-empty`, `.plugboard-separator`)
+- Consolidated `TutorialStep`, `HistorySection`, `HistoryChapter` types into `src/types/index.ts`
+- Added 2 new validation test cases (7 assertions) — 68 tests passing
+- Final verification: `tsc -b` clean, 68 tests passing, production build succeeds (73.27 kB gzipped JS)
 
 Phase 5 — Polish & Deploy:
 - GitHub Actions workflow for automated build, test, and deploy to GitHub Pages on push to `main`
@@ -58,7 +71,7 @@ None.
 ## Files Created / Modified (All Phases)
 
 **Engine (Phase 1):**
-- `src/types/index.ts` — Shared TypeScript types
+- `src/types/index.ts` — Shared TypeScript types (consolidated: `TutorialStep`, `HistorySection`, `HistoryChapter`)
 - `src/engine/constants.ts` — Rotor wirings, notches, alphabet utilities
 - `src/engine/rotor.ts` — Rotor class with forward/reverse and stepping
 - `src/engine/reflector.ts` — Reflector class
@@ -67,7 +80,7 @@ None.
 - `src/engine/index.ts` — Barrel export
 
 **Tests (Phase 1):**
-- `tests/engine/rotor.test.ts` — 24 tests
+- `tests/engine/rotor.test.ts` — 26 tests (added constructor validation)
 - `tests/engine/reflector.test.ts` — 7 tests
 - `tests/engine/plugboard.test.ts` — 13 tests
 - `tests/engine/enigma.test.ts` — 16 tests
@@ -106,8 +119,8 @@ None.
 
 ## Test Status
 
-- **Engine tests:** 66 passing, 0 failing
-- **Build:** Production build succeeds (50 modules, 73.15 kB gzipped)
+- **Engine tests:** 68 passing, 0 failing
+- **Build:** Production build succeeds (50 modules, 73.27 kB gzipped)
 - **TypeScript:** Clean compilation across all configs
 
 ---
@@ -118,4 +131,6 @@ None.
 |----------|-----------|------|
 | Ring setting: 1-26 external, 0-25 internal | Matches historical convention externally, simpler math internally | 2026-02-13 |
 | EncryptionResult includes full SignalStep[] trace | Enables tutorial to derive visualization from engine — no separate simulation logic | 2026-02-13 |
+| useEnigma: sibling setState calls instead of nested updaters | Avoids side-effects inside React state updater functions; safer under concurrent mode | 2026-02-14 |
+| Consolidated shared types in src/types/index.ts | Single source of truth for types shared across hooks, content, and components | 2026-02-14 |
 | Notch check happens before any stepping in stepRotors() | Required for correct double-step: must read both notch states before mutating positions | 2026-02-13 |
