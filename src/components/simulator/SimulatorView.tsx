@@ -76,7 +76,7 @@ export function SimulatorView() {
         disabled={enigma.hasRotorConflict}
       />
 
-      <section className="message-display">
+      <section className="message-display" aria-live="polite">
         <h3>Messages</h3>
         <div className="message-rows">
           <div className="message-row">
