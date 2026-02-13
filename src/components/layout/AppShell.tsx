@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TabNav } from './TabNav';
 import { SimulatorView } from '../simulator/SimulatorView';
 import { TutorialView } from '../tutorial/TutorialView';
+import { HistoryView } from '../history/HistoryView';
 import type { Tab } from './TabNav';
 
 export function AppShell() {
@@ -18,12 +19,7 @@ export function AppShell() {
       <main className="app-content">
         {activeTab === 'simulator' && <SimulatorView />}
         {activeTab === 'tutorial' && <TutorialView />}
-        {activeTab === 'history' && (
-          <div className="placeholder">
-            <h2>History</h2>
-            <p>The story of the Enigma machine — coming in Phase 4.</p>
-          </div>
-        )}
+        {activeTab === 'history' && <HistoryView />}
       </main>
     </div>
   );
