@@ -14,7 +14,6 @@ const tabs: { id: Tab; label: string }[] = [
 ];
 
 export function TabNav({ activeTab, onTabChange }: TabNavProps) {
-  /** WAI-ARIA tabs: arrow keys move focus between tabs, Enter/Space activates */
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       const currentIndex = tabs.findIndex((t) => t.id === activeTab);
@@ -39,21 +38,32 @@ export function TabNav({ activeTab, onTabChange }: TabNavProps) {
   );
 
   return (
-    <nav className="tab-nav" role="tablist" onKeyDown={handleKeyDown}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          role="tab"
-          id={`tab-${tab.id}`}
-          aria-selected={activeTab === tab.id}
-          aria-controls={`tabpanel-${tab.id}`}
-          tabIndex={activeTab === tab.id ? 0 : -1}
-          className={activeTab === tab.id ? 'active' : ''}
-          onClick={() => onTabChange(tab.id)}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <nav
+      className="flex bg-surface border-b-2 border-border"
+      role="tablist"
+      onKeyDown={handleKeyDown}
+    >
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.id;
+        return (
+          <button
+            key={tab.id}
+            role="tab"
+            id={`tab-${tab.id}`}
+            aria-selected={isActive}
+            aria-controls={`tabpanel-${tab.id}`}
+            tabIndex={isActive ? 0 : -1}
+            className={`px-6 py-2.5 bg-transparent border-none text-[0.9rem] cursor-pointer transition-colors duration-200
+              ${isActive
+                ? 'text-accent tab-active-bar'
+                : 'text-muted hover:text-foreground'
+              }`}
+            onClick={() => onTabChange(tab.id)}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
     </nav>
   );
 }

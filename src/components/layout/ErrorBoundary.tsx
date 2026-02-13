@@ -10,11 +10,6 @@ type ErrorBoundaryState = {
   error: Error | null;
 };
 
-/**
- * Catches render errors in child components and shows a recovery UI
- * instead of a blank white screen. Particularly relevant for engine
- * constructor throws on invalid configuration during transitions.
- */
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null };
 
@@ -29,14 +24,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render() {
     if (this.state.error) {
       return (
-        <div className="error-boundary" role="alert">
-          <h2>Something went wrong</h2>
+        <div className="p-8 text-center text-foreground" role="alert">
+          <h2 className="text-accent mb-2">Something went wrong</h2>
           <p>{this.props.fallbackMessage ?? 'An unexpected error occurred.'}</p>
-          <details>
+          <details className="my-4 text-left max-w-[600px] mx-auto">
             <summary>Error details</summary>
-            <pre>{this.state.error.message}</pre>
+            <pre className="bg-surface p-4 rounded-default overflow-x-auto font-mono text-[0.85rem]">
+              {this.state.error.message}
+            </pre>
           </details>
-          <button onClick={() => this.setState({ error: null })}>
+          <button
+            className="mt-4 px-6 py-2 bg-accent text-white border-none rounded-default cursor-pointer font-semibold"
+            onClick={() => this.setState({ error: null })}
+          >
             Try Again
           </button>
         </div>

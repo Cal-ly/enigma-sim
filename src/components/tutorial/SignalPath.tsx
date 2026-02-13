@@ -5,12 +5,6 @@ type SignalPathProps = {
   currentStep: number;
 };
 
-/**
- * Visual representation of the Enigma signal path.
- * Uses styled divs arranged to show signal flow through each component.
- * The active component is highlighted based on the current tutorial step.
- */
-
 type ComponentBlock = {
   id: string;
   label: string;
@@ -32,16 +26,11 @@ const COMPONENTS: ComponentBlock[] = [
   { id: 'output', label: 'Output', shortLabel: 'OUT', highlightOn: ['output'] },
 ];
 
-/**
- * Determine which component block indices are active for a given step.
- * Forward pass maps to the first appearance; reverse pass maps to the second.
- */
 function getActiveBlockIndex(step: TutorialStep): number {
   if (step.highlightComponent === 'input') return 0;
   if (step.highlightComponent === 'output') return 10;
   if (step.highlightComponent === 'reflector') return 5;
 
-  // For rotors and plugboard, distinguish forward vs reverse
   const componentMap: Record<string, Record<string, number>> = {
     'plugboard': { forward: 1, reverse: 9 },
     'rotor-r': { forward: 2, reverse: 8 },
@@ -52,13 +41,11 @@ function getActiveBlockIndex(step: TutorialStep): number {
   return componentMap[step.highlightComponent]?.[step.direction] ?? -1;
 }
 
-/** Get the letter at a position in the signal chain for display on connections */
 function getSignalLetterAtPosition(
   stepIndex: number,
   steps: TutorialStep[],
   currentStep: number,
 ): string | null {
-  // Only show letters for steps that have been visited
   if (stepIndex > currentStep) return null;
   const step = steps[stepIndex];
   return step?.outputLetter ?? null;
@@ -69,28 +56,39 @@ export function SignalPath({ steps, currentStep }: SignalPathProps) {
   const activeBlockIndex = activeStep ? getActiveBlockIndex(activeStep) : -1;
 
   return (
-    <div className="signal-path">
-      <div className="signal-path-blocks">
+    <div className="bg-surface rounded-default p-5 border border-border">
+      <div className="flex flex-wrap items-center justify-center gap-[0.15rem]">
         {COMPONENTS.map((comp, i) => {
           const isActive = i === activeBlockIndex;
           const isVisited = activeBlockIndex >= 0 && i <= activeBlockIndex;
-          // Show the signal letter that arrives at this block
           const signalLetter = getSignalLetterAtPosition(i, steps, currentStep);
 
           return (
-            <div key={comp.id} className="signal-block-wrapper">
+            <div key={comp.id} className="flex items-center gap-[0.15rem]">
               <div
-                className={`signal-block ${isActive ? 'active' : ''} ${isVisited ? 'visited' : ''}`}
+                className={`flex flex-col items-center justify-center w-[58px] h-16 rounded-default border-2 transition-all duration-200 relative
+                  ${isActive
+                    ? 'border-accent bg-accent/10 signal-glow'
+                    : isVisited
+                      ? 'border-surface-alt bg-bg'
+                      : 'border-border bg-bg'
+                  }`}
                 data-component={comp.id}
               >
-                <span className="signal-block-short">{comp.shortLabel}</span>
-                <span className="signal-block-label">{comp.label}</span>
+                <span className={`font-mono text-[0.9rem] font-bold ${isActive ? 'text-accent' : 'text-foreground'}`}>
+                  {comp.shortLabel}
+                </span>
+                <span className="text-[0.55rem] text-muted text-center leading-tight">
+                  {comp.label}
+                </span>
                 {signalLetter && (
-                  <span className="signal-block-letter">{signalLetter}</span>
+                  <span className="absolute -bottom-2 font-mono text-[0.7rem] font-bold text-lamp-on bg-surface px-0.5 rounded-sm">
+                    {signalLetter}
+                  </span>
                 )}
               </div>
               {i < COMPONENTS.length - 1 && (
-                <div className={`signal-connector ${isVisited ? 'visited' : ''}`}>
+                <div className={`text-[0.7rem] min-w-3 text-center ${isVisited ? 'text-accent' : 'text-border'}`}>
                   {i === 4 ? '↓' : i === 5 ? '↓' : '→'}
                 </div>
               )}
@@ -100,9 +98,13 @@ export function SignalPath({ steps, currentStep }: SignalPathProps) {
       </div>
 
       {activeStep && (
-        <div className="signal-step-info">
-          <div className="signal-step-label">{activeStep.label}</div>
-          <div className="signal-step-description">{activeStep.description}</div>
+        <div className="mt-5 pt-4 border-t border-border">
+          <div className="font-mono text-base font-bold text-lamp-on mb-2">
+            {activeStep.label}
+          </div>
+          <div className="text-[0.9rem] leading-relaxed text-foreground">
+            {activeStep.description}
+          </div>
         </div>
       )}
     </div>

@@ -9,10 +9,12 @@ import type { Letter } from '../../types';
 
 const LAMP_DURATION_MS = 200;
 
-/** Format message in 5-letter groups for readability */
 function formatMessage(text: string): string {
   return text.replace(/(.{5})/g, '$1 ').trim();
 }
+
+const btnCls =
+  'bg-surface-alt text-foreground border border-border rounded-default px-4 py-1.5 cursor-pointer text-[0.85rem] transition-all duration-150 hover:bg-accent hover:border-accent';
 
 export function SimulatorView() {
   const enigma = useEnigma();
@@ -22,7 +24,6 @@ export function SimulatorView() {
   const lampTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Clean up timers on unmount to prevent state updates after unmount
   useEffect(() => {
     return () => {
       if (lampTimerRef.current) clearTimeout(lampTimerRef.current);
@@ -33,11 +34,8 @@ export function SimulatorView() {
   const handleKeyPress = useCallback(
     (letter: string) => {
       if (enigma.hasRotorConflict) return;
-
       const result = enigma.pressKey(letter);
       if (!result) return;
-
-      // Light the output lamp briefly
       if (lampTimerRef.current) clearTimeout(lampTimerRef.current);
       setLitLamp(result.outputLetter);
       lampTimerRef.current = setTimeout(() => setLitLamp(null), LAMP_DURATION_MS);
@@ -71,14 +69,13 @@ export function SimulatorView() {
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
       copyTimerRef.current = setTimeout(() => setCopyFeedback(false), 1500);
     } catch {
-      // Clipboard API not available — ignore silently
+      // Clipboard API not available
     }
   }, [enigma.state.outputHistory]);
 
   const handleBatchEncrypt = useCallback(() => {
     const letters = batchInput.toUpperCase().replace(/[^A-Z]/g, '');
     if (!letters || enigma.hasRotorConflict) return;
-
     for (const ch of letters) {
       enigma.pressKey(ch);
     }
@@ -86,7 +83,7 @@ export function SimulatorView() {
   }, [batchInput, enigma]);
 
   return (
-    <div className="simulator">
+    <div className="flex flex-col gap-5">
       <MachineConfig
         config={enigma.config}
         hasRotorConflict={enigma.hasRotorConflict}
@@ -101,35 +98,29 @@ export function SimulatorView() {
       />
 
       <RotorDisplay positions={enigma.state.rotorPositions} />
-
       <Lampboard litLamp={litLamp} />
+      <Keyboard onKeyPress={handleKeyPress} disabled={enigma.hasRotorConflict} />
 
-      <Keyboard
-        onKeyPress={handleKeyPress}
-        disabled={enigma.hasRotorConflict}
-      />
-
-      <section className="message-display" aria-live="polite">
-        <h3>Messages</h3>
-        <div className="message-rows">
-          <div className="message-row">
-            <span className="message-row-label">Input</span>
-            <span className="message-row-text">
-              {enigma.state.inputHistory
-                ? formatMessage(enigma.state.inputHistory)
-                : '\u00A0'}
+      {/* Messages */}
+      <section className="bg-surface rounded-default p-4 border border-border" aria-live="polite">
+        <h3 className="m-0 mb-3 text-[0.85rem] uppercase tracking-widest text-muted">
+          Messages
+        </h3>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-3 items-baseline">
+            <span className="text-xs uppercase text-muted min-w-[60px] shrink-0">Input</span>
+            <span className="font-mono text-base tracking-widest break-all min-h-[1.4em]">
+              {enigma.state.inputHistory ? formatMessage(enigma.state.inputHistory) : '\u00A0'}
             </span>
           </div>
-          <div className="message-row">
-            <span className="message-row-label">Output</span>
-            <span className="message-row-text">
-              {enigma.state.outputHistory
-                ? formatMessage(enigma.state.outputHistory)
-                : '\u00A0'}
+          <div className="flex gap-3 items-baseline">
+            <span className="text-xs uppercase text-muted min-w-[60px] shrink-0">Output</span>
+            <span className="font-mono text-base tracking-widest break-all min-h-[1.4em]">
+              {enigma.state.outputHistory ? formatMessage(enigma.state.outputHistory) : '\u00A0'}
             </span>
             {enigma.state.outputHistory && (
               <button
-                className="copy-btn"
+                className="bg-transparent border border-border rounded-default text-muted cursor-pointer text-base px-2 py-0.5 ml-2 shrink-0 transition-colors duration-150 hover:text-accent hover:border-accent"
                 onClick={handleCopyOutput}
                 aria-label="Copy output to clipboard"
                 title="Copy output"
@@ -141,9 +132,12 @@ export function SimulatorView() {
         </div>
       </section>
 
-      <section className="batch-input">
-        <h3>Batch Encrypt</h3>
-        <div className="batch-row">
+      {/* Batch Encrypt */}
+      <section className="py-2">
+        <h3 className="text-[0.85rem] uppercase tracking-widest text-muted mb-1.5">
+          Batch Encrypt
+        </h3>
+        <div className="flex gap-2">
           <input
             type="text"
             value={batchInput}
@@ -152,20 +146,23 @@ export function SimulatorView() {
             placeholder="Paste or type a message…"
             aria-label="Batch input text"
             disabled={enigma.hasRotorConflict}
+            className="flex-1 bg-surface text-foreground border border-border rounded-default px-3 py-1.5 font-mono text-[0.9rem] placeholder:text-muted focus:outline-2 focus:outline-accent focus:outline-offset-1"
           />
           <button
             onClick={handleBatchEncrypt}
             disabled={enigma.hasRotorConflict || !batchInput.trim()}
+            className={`${btnCls} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             Encrypt
           </button>
         </div>
       </section>
 
-      <div className="controls">
-        <button onClick={enigma.randomize}>Random Config</button>
-        <button onClick={handleResetPositions}>Reset Positions</button>
-        <button onClick={handleClearAll}>Clear All</button>
+      {/* Controls */}
+      <div className="flex gap-2 justify-center py-1">
+        <button className={btnCls} onClick={enigma.randomize}>Random Config</button>
+        <button className={btnCls} onClick={handleResetPositions}>Reset Positions</button>
+        <button className={btnCls} onClick={handleClearAll}>Clear All</button>
       </div>
     </div>
   );

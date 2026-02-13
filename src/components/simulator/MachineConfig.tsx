@@ -16,6 +16,9 @@ type MachineConfigProps = {
   onUpdateReflector: (reflector: ReflectorName) => void;
 };
 
+const selectCls =
+  'bg-bg text-foreground border border-border rounded-default px-2 py-1.5 text-[0.9rem] font-mono min-w-[60px] focus:outline-none focus:border-accent';
+
 export function MachineConfig({
   config,
   hasRotorConflict,
@@ -23,16 +26,22 @@ export function MachineConfig({
   onUpdateReflector,
 }: MachineConfigProps) {
   return (
-    <section className="machine-config">
-      <h3>Machine Configuration</h3>
+    <section className="bg-surface rounded-default p-4 border border-border">
+      <h3 className="m-0 mb-3 text-[0.85rem] uppercase tracking-widest text-muted">
+        Machine Configuration
+      </h3>
 
-      <div className="config-row config-row--reflector">
-        <div className="config-group">
-          <label htmlFor="reflector-select">Reflector</label>
+      {/* Reflector row */}
+      <div className="flex gap-4 items-end flex-wrap mb-3">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="reflector-select" className="text-xs text-muted uppercase tracking-wide">
+            Reflector
+          </label>
           <select
             id="reflector-select"
             value={config.reflector}
             onChange={(e) => onUpdateReflector(e.target.value as ReflectorName)}
+            className={selectCls}
           >
             {REFLECTOR_OPTIONS.map((r) => (
               <option key={r} value={r}>{r}</option>
@@ -41,7 +50,8 @@ export function MachineConfig({
         </div>
       </div>
 
-      <div className="rotor-configs">
+      {/* Rotor slots */}
+      <div className="flex gap-5 flex-wrap">
         {([0, 1, 2] as const).map((slot) => {
           const rotorCfg = config.rotors[slot];
           const usedByOthers = config.rotors
@@ -49,34 +59,36 @@ export function MachineConfig({
             .map((r) => r.name);
 
           return (
-            <div key={slot} className="rotor-config-slot">
-              <h4>{SLOT_LABELS[slot]} Rotor</h4>
-              <div className="config-row">
-                <div className="config-group">
-                  <label htmlFor={`rotor-${slot}-name`}>Rotor</label>
+            <div key={slot} className="bg-bg rounded-default p-3 border border-border min-w-[140px]">
+              <h4 className="m-0 mb-2 text-[0.8rem] text-accent">{SLOT_LABELS[slot]} Rotor</h4>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`rotor-${slot}-name`} className="text-xs text-muted uppercase tracking-wide">
+                    Rotor
+                  </label>
                   <select
                     id={`rotor-${slot}-name`}
                     value={rotorCfg.name}
                     onChange={(e) => onUpdateRotor(slot, 'name', e.target.value as RotorName)}
+                    className={selectCls}
                   >
                     {ROTOR_OPTIONS.map((r) => (
-                      <option
-                        key={r}
-                        value={r}
-                        disabled={usedByOthers.includes(r)}
-                      >
+                      <option key={r} value={r} disabled={usedByOthers.includes(r)}>
                         {r}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div className="config-group">
-                  <label htmlFor={`rotor-${slot}-ring`}>Ring</label>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`rotor-${slot}-ring`} className="text-xs text-muted uppercase tracking-wide">
+                    Ring
+                  </label>
                   <select
                     id={`rotor-${slot}-ring`}
                     value={rotorCfg.ringSetting}
                     onChange={(e) => onUpdateRotor(slot, 'ringSetting', Number(e.target.value))}
+                    className={selectCls}
                   >
                     {Array.from({ length: 26 }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={n}>
@@ -86,12 +98,15 @@ export function MachineConfig({
                   </select>
                 </div>
 
-                <div className="config-group">
-                  <label htmlFor={`rotor-${slot}-pos`}>Position</label>
+                <div className="flex flex-col gap-1">
+                  <label htmlFor={`rotor-${slot}-pos`} className="text-xs text-muted uppercase tracking-wide">
+                    Position
+                  </label>
                   <select
                     id={`rotor-${slot}-pos`}
                     value={rotorCfg.position}
                     onChange={(e) => onUpdateRotor(slot, 'position', e.target.value)}
+                    className={selectCls}
                   >
                     {ALPHABET.split('').map((ch) => (
                       <option key={ch} value={ch}>{ch}</option>
@@ -105,7 +120,9 @@ export function MachineConfig({
       </div>
 
       {hasRotorConflict && (
-        <p className="config-error">Each rotor slot must use a different rotor.</p>
+        <p className="text-accent text-[0.8rem] mt-2">
+          Each rotor slot must use a different rotor.
+        </p>
       )}
     </section>
   );
