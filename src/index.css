@@ -1,68 +1,481 @@
+/* === Global Styles === */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-bg: #1a1a2e;
+  --color-surface: #16213e;
+  --color-surface-alt: #0f3460;
+  --color-accent: #e94560;
+  --color-text: #eee;
+  --color-text-muted: #999;
+  --color-border: #333;
+  --color-lamp-off: #2a2a3e;
+  --color-lamp-on: #ffd700;
+  --color-key-bg: #2a2a3e;
+  --color-key-hover: #3a3a4e;
+  --color-key-active: #4a4a5e;
+  --font-mono: 'Courier New', Courier, monospace;
+  --radius: 6px;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+/* === App Shell === */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.app-header h1 span {
+  color: var(--color-accent);
+}
+
+/* === Tab Navigation === */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  background: var(--color-surface);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tab-nav button {
+  padding: 0.6rem 1.5rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  position: relative;
+  transition: color 0.2s;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.tab-nav button:hover {
+  color: var(--color-text);
+}
+
+.tab-nav button.active {
+  color: var(--color-accent);
+}
+
+.tab-nav button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent);
+}
+
+/* === Main Content === */
+.app-content {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* === Simulator Layout === */
+.simulator {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* === Machine Config === */
+.machine-config {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.machine-config h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.config-row {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.config-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.config-group label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.config-group select,
+.config-group input {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.5rem;
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  min-width: 60px;
+}
+
+.config-group select:focus,
+.config-group input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.rotor-configs {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.rotor-config-slot {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  min-width: 140px;
+}
+
+.rotor-config-slot h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-accent);
+}
+
+.rotor-config-slot .config-row {
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+/* === Plugboard Config === */
+.plugboard-config {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.plugboard-config h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.plugboard-pairs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+  min-height: 2rem;
+}
+
+.plugboard-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.plugboard-pair button {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0 0.25rem;
+  margin-left: 0.25rem;
+}
+
+.plugboard-add {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.plugboard-add select {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.plugboard-add button {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.plugboard-add button:hover:not(:disabled) {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.plugboard-add button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* === Rotor Display === */
+.rotor-display {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.rotor-window {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rotor-window-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.rotor-window-letter {
+  width: 48px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-lamp-on);
+}
+
+/* === Lampboard === */
+.lampboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+}
+
+.lampboard-row {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.lamp {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-lamp-off);
+  border: 2px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--color-text-muted);
+  transition: all 0.05s;
+}
+
+.lamp.lit {
+  background: var(--color-lamp-on);
+  color: #1a1a2e;
+  border-color: var(--color-lamp-on);
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
+
+/* === Keyboard === */
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.key {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  background: var(--color-key-bg);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.1s;
+  user-select: none;
+}
+
+.key:hover {
+  background: var(--color-key-hover);
+}
+
+.key:active,
+.key.pressed {
+  background: var(--color-key-active);
+  transform: scale(0.95);
+}
+
+/* === Message Display === */
+.message-display {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.message-display h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.message-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.message-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.message-row-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.message-row-text {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  word-break: break-all;
+  min-height: 1.4em;
+}
+
+/* === Controls === */
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.25rem 0;
+}
+
+.controls button {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.controls button:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* === Placeholder === */
+.placeholder {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+}
+
+.placeholder h2 {
+  margin: 0 0 0.5rem;
+  color: var(--color-text);
+}
+
+/* === Error message === */
+.config-error {
+  color: var(--color-accent);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
 }
