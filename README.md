@@ -92,7 +92,7 @@ npx vitest             # Watch mode
 
 ## References
 
-- [Crypto Museum — Enigma](https://www.cryptomuseum.com/crypto/enigma/)
+- [Crypto Museum — Enigma](https://www.cryptomuseum.com/crypto/enigma/) Huge thanks! The diagrams helped shape the applications code. 
 - [Tony Sale's Encyclopaedia – Enigma](http://www.codesandciphers.org.uk/enigma/)
 - [Wikipedia — Enigma machine](https://en.wikipedia.org/wiki/Enigma_machine)
 - [Rejewski's mathematical framework](https://en.wikipedia.org/wiki/Marian_Rejewski)
@@ -105,4 +105,4 @@ npx vitest             # Watch mode
 
 ## License
 
-MIT
+License: AGPL-3.0 license
