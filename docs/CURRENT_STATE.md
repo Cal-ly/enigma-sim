@@ -8,63 +8,66 @@
 
 ## Active Phase
 
-**Phase:** Phase 1 — Foundation (Engine + Tests)
+**Phase:** Phase 2 — Simulator UI
 **Status:** **COMPLETE**
 
 ---
 
 ## Last Completed
 
-Phase 1 fully implemented:
-- Project scaffolded with Vite + React-TS + vitest
-- All 5 engine modules: constants, rotor, reflector, plugboard, enigma machine
-- Full signal path with 9-step trace for tutorial use
-- Double-step anomaly correctly implemented
-- 66 tests passing across 5 test files
-- Known test vector 1 (AAAAAAAAAA → BDZGOWCXLT) verified
-- Round-trip encryption/decryption symmetry verified
-- No-self-encryption property verified
+Phase 2 fully implemented:
+- App shell with header and 3-tab navigation (Simulator, How It Works, History)
+- `useEnigma` hook wrapping engine state for React (pressKey, configure, reset, plugboard management)
+- MachineConfig: rotor selection (I–V, no duplicates enforced), ring settings (01–26), positions (A–Z), reflector (UKW-B/C)
+- PlugboardConfig: add/remove pairs, max 13, disable used letters, clear display
+- Keyboard: clickable QWERTZ layout + physical keyboard capture (A–Z only, ignores modifiers)
+- Lampboard: 26 lamps in QWERTZ layout, 200ms highlight on output
+- RotorDisplay: 3 windows showing current rotor positions
+- Message display: accumulating input/output in 5-letter groups
+- Reset controls: "Reset Positions" (back to initial) and "Clear All" (full reset)
+- TypeScript compiles clean, production build succeeds
+- All 66 engine tests still passing
 
 ---
 
 ## Next Up
 
-1. **Phase 2: Simulator UI** — Build app shell with tab navigation
-2. Implement `useEnigma` hook wrapping engine state
-3. Build MachineConfig, PlugboardConfig, Keyboard, Lampboard, RotorDisplay
-4. Compose SimulatorView with full encrypt/decrypt workflow
+1. **Phase 3: Tutorial / How It Works** — Interactive signal path visualization
+2. Implement `useTutorial` hook driven by engine trace data
+3. Build SignalPath, StepControls, TutorialView components
+4. Wire into the "How It Works" tab
 
 ---
 
 ## Open Questions / Blockers
 
-- Vector 2 expected output was derived from our engine (JCRNLYASZP) rather than cross-referenced (no interactive online simulator available for automation). Engine correctness validated by Vector 1 + symmetry + no-self-encryption.
+- Vector 2 expected output was derived from our engine (JCRNLYASZP) rather than cross-referenced. Engine correctness validated by Vector 1 + symmetry + no-self-encryption.
 
 ---
 
 ## Files Created / Modified (This Session)
 
-**Engine:**
-- `src/types/index.ts` — Shared TypeScript types
-- `src/engine/constants.ts` — Historical wiring tables, alphabet utilities
-- `src/engine/rotor.ts` — Rotor class with forward/reverse/step/atNotch
-- `src/engine/reflector.ts` — Reflector class
-- `src/engine/plugboard.ts` — Plugboard with validation
-- `src/engine/enigma.ts` — EnigmaMachine orchestrating full signal path
-- `src/engine/index.ts` — Barrel export
+**Layout:**
+- `src/components/layout/AppShell.tsx` — App shell with tab routing
+- `src/components/layout/TabNav.tsx` — Tab navigation component
 
-**Tests:**
-- `tests/engine/rotor.test.ts` — 24 tests
-- `tests/engine/reflector.test.ts` — 7 tests
-- `tests/engine/plugboard.test.ts` — 13 tests
-- `tests/engine/enigma.test.ts` — 16 tests (known vectors, symmetry, trace, validation)
-- `tests/engine/stepping.test.ts` — 6 tests (double-step anomaly)
+**Simulator:**
+- `src/components/simulator/SimulatorView.tsx` — Composition root
+- `src/components/simulator/MachineConfig.tsx` — Rotor/reflector selectors
+- `src/components/simulator/PlugboardConfig.tsx` — Plugboard pair management
+- `src/components/simulator/Keyboard.tsx` — On-screen + physical keyboard
+- `src/components/simulator/Lampboard.tsx` — Output lamp display
+- `src/components/simulator/RotorDisplay.tsx` — Rotor position windows
 
-**Config:**
-- `vite.config.ts` — base path + vitest config
-- `tsconfig.test.json` — Test-specific TypeScript config
-- `package.json` — Updated name, added test scripts
-- `src/test-setup.ts` — jest-dom setup
+**Hooks:**
+- `src/hooks/useEnigma.ts` — Engine state management for React
+
+**Config/Cleanup:**
+- `src/index.css` — Full CSS design system
+- `src/App.tsx` — Rewired to AppShell
+- `index.html` — Updated title
+- `src/vite-env.d.ts` — Vite client types
+- Removed boilerplate: App.css, react.svg, vite.svg
 
 ---
 

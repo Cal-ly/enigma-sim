@@ -44,7 +44,29 @@
 
 ## Phase 2: Simulator UI
 
-_No entries yet._
+### 2026-02-13 — Vite scaffold missing vite-env.d.ts
+
+**[LL]**
+
+**Context:** TypeScript compilation failed with "Cannot find module './index.css'" error.
+**What happened:** The Vite scaffold template creates `vite-env.d.ts` with `/// <reference types="vite/client" />` which provides CSS module type declarations. Our temp-dir copy approach missed this file.
+**Takeaway:** When copying Vite scaffold files, always verify `vite-env.d.ts` exists in `src/`. The `vite/client` types are essential for CSS imports, SVG imports, etc.
+
+### 2026-02-13 — useRef requires explicit initial value in newer React types
+
+**[LL]**
+
+**Context:** `useRef<ReturnType<typeof setTimeout>>()` failed TS compilation.
+**What happened:** React 19 types require an explicit initial value for `useRef` — passing `undefined` satisfies this: `useRef<...>(undefined)`.
+**Takeaway:** Always provide an initial value to `useRef` in strict TypeScript mode.
+
+### 2026-02-13 — vitest/config reference type needed for vite.config.ts
+
+**[LL]**
+
+**Context:** `test` property in `vite.config.ts` caused TS error "does not exist in type 'UserConfigExport'".
+**What happened:** The `tsconfig.node.json` (which covers `vite.config.ts`) doesn't include vitest types. Using `/// <reference types="vitest/config" />` instead of `/// <reference types="vitest" />` resolved it.
+**Takeaway:** Use `vitest/config` reference type specifically for vite config files.
 
 ---
 
